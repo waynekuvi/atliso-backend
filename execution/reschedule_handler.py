@@ -9,8 +9,8 @@ from datetime import datetime, timedelta
 from dateutil import parser as date_parser
 
 from .db_helper import DatabaseHelper
-from calendar_service import CalendarService
-from email_service import EmailService
+from .calendar_service import CalendarService
+from .email_service import EmailService
 
 
 class RescheduleHandler:

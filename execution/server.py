@@ -27,9 +27,9 @@ load_dotenv(Path(__file__).parent.parent / ".env")
 
 # Import workflow handlers
 from contextlib import asynccontextmanager
-from workflow_router import WorkflowRouter
-from webhook_service import WebhookService
-from lead_recovery_service import LeadRecoveryService
+from .workflow_router import WorkflowRouter
+from .webhook_service import WebhookService
+from .lead_recovery_service import LeadRecoveryService
 
 # Global services
 services = {}

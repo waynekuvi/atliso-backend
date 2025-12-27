@@ -10,7 +10,7 @@ from datetime import datetime
 from openai import AsyncOpenAI
 
 from .db_helper import DatabaseHelper
-from webhook_service import WebhookService
+from .webhook_service import WebhookService
 
 
 class ChatResponder:
