@@ -27,26 +27,12 @@ class DatabaseHelper:
         if DatabaseHelper._pool is None:
             import ssl
             import asyncio
-            import re
             
             db_url = self.database_url
             print(f"💎 Initializing Global Database Pool...")
+            print(f"📡 Connecting to database...")
             
-            # Auto-convert Supabase direct URL (5432) to pooler URL (6543)
-            # Direct: postgresql://postgres:PASS@db.PROJECT.supabase.co:5432/postgres
-            # Pooler: postgresql://postgres.PROJECT:PASS@aws-0-us-west-1.pooler.supabase.com:6543/postgres
-            if db_url and 'supabase.co:5432' in db_url:
-                match = re.match(r'postgresql://postgres:([^@]+)@db\.([^.]+)\.supabase\.co:5432/postgres', db_url)
-                if match:
-                    password = match.group(1)
-                    project_ref = match.group(2)
-                    # Try US West 1 pooler (most common)
-                    db_url = f"postgresql://postgres.{project_ref}:{password}@aws-0-us-west-1.pooler.supabase.com:6543/postgres"
-                    print(f"🔄 Converted to Supabase Connection Pooler URL")
-            
-            print(f"📡 Connecting to: {db_url[:50]}...")
-            
-            # Create proper SSL context for Supabase
+            # Create proper SSL context for Supabase (required for external connections)
             ssl_context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
             ssl_context.check_hostname = False
             ssl_context.verify_mode = ssl.CERT_NONE
