@@ -325,7 +325,7 @@ async def booking_endpoint(request: Request):
     Booking workflow endpoint
     Called by N8N or directly for appointment booking
     """
-    from booking_handler import BookingHandler
+    from .booking_handler import BookingHandler
     
     try:
         payload = await request.json()
@@ -342,7 +342,7 @@ async def reschedule_endpoint(request: Request):
     """
     Reschedule/Cancel workflow endpoint
     """
-    from reschedule_handler import RescheduleHandler
+    from .reschedule_handler import RescheduleHandler
     
     try:
         payload = await request.json()
@@ -359,7 +359,7 @@ async def embed_pdf_endpoint(request: Request):
     """
     Knowledge base PDF embedding endpoint
     """
-    from knowledge_base import KnowledgeBaseHandler
+    from .knowledge_base import KnowledgeBaseHandler
     
     try:
         payload = await request.json()

@@ -365,7 +365,7 @@ class ChatResponder:
     
     async def _call_booking(self, arguments: Dict, session_id: str) -> Dict:
         """Call the booking handler"""
-        from booking_handler import BookingHandler
+        from .booking_handler import BookingHandler
         
         handler = BookingHandler()
         arguments["sessionId"] = session_id
@@ -373,7 +373,7 @@ class ChatResponder:
     
     async def _call_reschedule(self, arguments: Dict, session_id: str) -> Dict:
         """Call the reschedule handler"""
-        from reschedule_handler import RescheduleHandler
+        from .reschedule_handler import RescheduleHandler
         
         handler = RescheduleHandler()
         arguments["session_id"] = session_id
@@ -381,7 +381,7 @@ class ChatResponder:
 
     async def _call_escalation(self, arguments: Dict, session_id: str) -> Dict:
         """Call the Discord escalation service"""
-        from discord_service import DiscordService
+        from .discord_service import DiscordService
         
         service = DiscordService()
         reason = arguments.get("reason", "User requested")
