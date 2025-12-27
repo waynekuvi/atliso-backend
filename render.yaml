@@ -17,3 +17,14 @@ services:
         sync: false
       - key: ROVODEV_WEBHOOK_URL
         sync: false
+
+  - type: worker
+    name: discord-listener
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python execution/discord_listener.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: DISCORD_BOT_TOKEN
+        sync: false
