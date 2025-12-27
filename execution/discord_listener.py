@@ -10,7 +10,7 @@ from pathlib import Path
 load_dotenv(Path(__file__).parent.parent / ".env")
 
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
-API_URL = "http://localhost:8000/webhook/discord"
+API_URL = "https://atliso-backend.onrender.com/webhook/discord"
 
 class DiscordListener(discord.Client):
     async def on_ready(self):
