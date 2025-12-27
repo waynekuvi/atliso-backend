@@ -162,6 +162,7 @@ class ChatResponse(BaseModel):
     """Response to chat widget"""
     output: str
     endConversation: Optional[bool] = False
+    handoffStatus: Optional[str] = "none"
 
 
 @app.get("/")
@@ -197,12 +198,14 @@ async def chat_webhook(payload: ChatMessage):
             # Return empty output when in handoff
             return ChatResponse(
                 output="",
-                endConversation=False
+                endConversation=False,
+                handoffStatus=handoff_status
             )
             
         return ChatResponse(
             output=result.get("reply", ""),
-            endConversation=result.get("endConversation", False)
+            endConversation=result.get("endConversation", False),
+            handoffStatus=handoff_status
         )
     except Exception as e:
         print(f"[ChatWebhook] Error: {e}")

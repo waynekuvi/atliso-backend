@@ -130,7 +130,7 @@ export async function sendMessageToWebhook(
     gif?: Message['gif'];
     audio?: Message['audio'];
   }
-): Promise<string> {
+): Promise<{ reply: string, handoffStatus?: string, endConversation?: boolean }> {
   const payload = {
     message,
     messageType: extras?.messageType || 'text',
@@ -161,7 +161,7 @@ export async function sendMessageToWebhook(
     const contentType = response.headers.get('content-type') || '';
     const text = await response.text();
 
-    let data: unknown = text;
+    let data: any = text;
     if (contentType.includes('application/json') && text.trim().length) {
       try {
         data = JSON.parse(text);
@@ -174,15 +174,19 @@ export async function sendMessageToWebhook(
       throw new Error(`Unexpected status ${response.status}`);
     }
 
+    const handoffStatus = data?.handoffStatus || 'none';
+    const endConversation = data?.endConversation || false;
+
     // Check for explicit silent output from backend (Human Mode)
-    if (data && typeof data === 'object' && 'output' in (data as any) && (data as any).output === "") {
-      return "";
+    if (data && typeof data === 'object' && 'output' in data && data.output === "") {
+      return { reply: "", handoffStatus, endConversation };
     }
 
     // Extract reply from response
-    const reply = extractReply(data);
-    // Allow empty string for silent mode (human handoff)
-    return reply !== null ? reply : "I received your message and will get back to you shortly!";
+    const replyText = extractReply(data);
+    const reply = replyText !== null ? replyText : "I received your message and will get back to you shortly!";
+
+    return { reply, handoffStatus, endConversation };
   } catch (error) {
     console.error('[AtlisoChatWidget] Error sending message:', error);
     throw error;

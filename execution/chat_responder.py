@@ -264,25 +264,35 @@ class ChatResponder:
             # Save messages to database
             await self.db.save_chat_message(session_id, "user", message)
             await self.db.save_chat_message(session_id, "assistant", reply)
+
+            # -------------------------------------------------------------
+            # SAFETY NET: Detect if AI said it's handing off but didn't call the tool
+            # -------------------------------------------------------------
+            current_lead = await self.db.get_lead(session_id)
+            current_status = current_lead.get("handoff_status", "none") if current_lead else "none"
             
+            if current_status == "none":
+                handoff_keywords = [
+                    "alerted a human", "notified a human", "handoff", "human agent", 
+                    "human specialist", "transferring you", "connecting you to a person",
+                    "speak to a representative", "hold on while I get a human"
+                ]
+                if any(kw in reply.lower() for kw in handoff_keywords):
+                    print(f"🚨 [ChatResponder] Handoff intent detected in text but tool NOT called. FORCING handoff for {session_id}")
+                    # Force the escalation tool logic
+                    await self._call_escalation({
+                        "reason": "Keyword Handoff Fallback",
+                        "summary": f"User mentioned human-related keywords and AI confirmed handoff in text: '{reply[:100]}...'"
+                    }, session_id)
+                    current_status = "waiting"
+
             # Check for conversation end indicators
             end_conversation = self._check_end_indicators(reply)
             
             return {
                 "reply": reply,
-                "endConversation": end_conversation
-            }
-            
-            # Save messages to database
-            await self.db.save_chat_message(session_id, "user", message)
-            await self.db.save_chat_message(session_id, "assistant", reply)
-            
-            # Check for conversation end indicators
-            end_conversation = self._check_end_indicators(reply)
-            
-            return {
-                "reply": reply,
-                "endConversation": end_conversation
+                "endConversation": end_conversation,
+                "handoff_status": current_status
             }
             
         except Exception as e:

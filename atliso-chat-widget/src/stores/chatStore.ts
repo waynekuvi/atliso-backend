@@ -308,7 +308,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
       const thread = getActiveThread();
       const history = thread?.messages || [];
 
-      const reply = await sendMessageToWebhook(
+      // Destructure the new robust response object
+      const { reply, handoffStatus, endConversation } = await sendMessageToWebhook(
         webhookUrl,
         content,
         sessionId,
@@ -321,49 +322,27 @@ export const useChatStore = create<ChatState>((set, get) => ({
         }
       );
 
+      // Sync handoff status immediately if it changed
+      if (handoffStatus && thread && thread.handoff_status !== handoffStatus) {
+        console.log(`[ChatStore] Instant sync handoff_status: ${handoffStatus}`);
+        get().setHandoffStatus(handoffStatus);
+      }
+
       // If reply is empty (silent mode), don't add a bot message
       if (reply && reply.trim()) {
         addMessage('bot', reply);
       }
 
-      // After any reply (or empty), check backend status to sync UI
-      try {
-        const baseUrl = webhookUrl.split('/webhook/')[0];
-        const statusResponse = await fetch(`${baseUrl}/api/v1/sessions/${sessionId}/status`);
-        if (statusResponse.ok) {
-          const status = await statusResponse.json();
-          const backendStatus = status.handoff_status || 'none';
-          const thread = getActiveThread();
-          if (thread && thread.handoff_status !== backendStatus) {
-            console.log(`[ChatStore] Syncing handoff_status: ${thread.handoff_status} -> ${backendStatus}`);
-            get().setHandoffStatus(backendStatus);
-          }
-        }
-      } catch (e) {
-        console.warn('[ChatStore] Failed to sync status:', e);
+      // Check for explicit endConversation flag from backend
+      if (endConversation) {
+        console.log('[ChatStore] Conversation marked as ended by backend');
+        get().setHandoffStatus('none');
+        // You might want to trigger a 'New Conversation' button here
       }
 
-      // Check for explicit endConversation flag
-      let parsed;
-      try {
-        parsed = JSON.parse(reply);
-      } catch {
-        // Not JSON
-      }
-
-      if (parsed && typeof parsed === 'object' && (parsed as any).endConversation === true) {
-        const { threads, activeThreadId } = get();
-        if (activeThreadId) {
-          const updatedThreads = threads.map(t =>
-            t.id === activeThreadId ? { ...t, ended: true } : t
-          );
-          set({ threads: updatedThreads });
-          saveThreads(updatedThreads);
-        }
-      }
     } catch (error) {
-      console.error('[AtlisoChatWidget] Send message error:', error);
-      addMessage('bot', "I'm having trouble connecting right now. Please try again in a moment.");
+      console.error('[ChatStore] Send message error:', error);
+      addMessage('bot', "I'm sorry, I'm having trouble connecting to the server. Please try again later.");
     } finally {
       set({ isTyping: false });
     }
