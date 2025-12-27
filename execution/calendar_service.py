@@ -24,25 +24,9 @@ class CalendarService:
     def _get_service(self):
         """Get or create Calendar API service"""
         if self._service is None:
-            # Load service account credentials
-            creds_file = os.getenv("GOOGLE_SERVICE_ACCOUNT_FILE")
-            if not creds_file:
-                raise ValueError("GOOGLE_SERVICE_ACCOUNT_FILE not set")
-            
-            # Handle relative path
-            if not os.path.isabs(creds_file):
-                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-                creds_file = os.path.join(base_dir, creds_file)
-            
-            credentials = service_account.Credentials.from_service_account_file(
-                creds_file,
-                scopes=["https://www.googleapis.com/auth/calendar"]
-            )
-            
-            # Impersonate the calendar owner if needed
-            # credentials = credentials.with_subject(self.calendar_id)
-            
-            self._service = build("calendar", "v3", credentials=credentials)
+            self._authenticate() # Call the new authentication method
+            if self._service is None: # If authentication failed to set service
+                raise ValueError("Google Calendar service could not be initialized.")
         
         return self._service
     
