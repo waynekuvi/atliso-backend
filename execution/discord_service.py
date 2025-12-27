@@ -113,4 +113,3 @@ class DiscordService:
                     return resp.status in [200, 204]
         except Exception:
             return False
-```
