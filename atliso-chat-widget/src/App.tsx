@@ -7,7 +7,7 @@ import type { MountOptions } from './types';
 
 // Development configuration
 const devOptions: MountOptions = {
-  webhookUrl: 'http://localhost:8000/webhook/chatbot',
+  webhookUrl: 'https://atliso-backend.onrender.com/webhook/chatbot',
   customization: {
     gradient: {
       color1: '#0D1321', // black-600

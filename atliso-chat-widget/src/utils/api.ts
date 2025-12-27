@@ -10,7 +10,7 @@ const DEFAULT_CUSTOMIZATION: Customization = {
   avatars: [],
   logo: null,
   supportLogo: null,
-  webhookUrl: 'http://localhost:8000/webhook/chatbot',
+  webhookUrl: 'https://atliso-backend.onrender.com/webhook/chatbot',
 };
 
 /**

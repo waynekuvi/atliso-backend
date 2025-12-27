@@ -17,7 +17,7 @@ export const ProspectDemo: React.FC = () => {
     }, [targetUrl]);
 
     const demoOptions = {
-        webhookUrl: 'http://localhost:8000/webhook/chatbot',
+        webhookUrl: 'https://atliso-backend.onrender.com/webhook/chatbot',
         customization: {
             gradient: {
                 color1: '#0D1321',
