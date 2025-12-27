@@ -1,0 +1,599 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 1. Trigger & Parsing\nAccepts input from the main chat workflow. Parses the intent (cancel vs reschedule) and validates required data.",
+        "height": 220,
+        "width": 300,
+        "color": 4
+      },
+      "id": "sticky-reschedule-1",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -3232,
+        -550
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 2. Decision Logic\nChecks the user's requested action. Splits the flow into Cancellation or Rescheduling paths.",
+        "height": 220,
+        "width": 260,
+        "color": 6
+      },
+      "id": "sticky-reschedule-2",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2560,
+        -550
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 3A. Cancellation Path\nRemoves the event from Google Calendar and sends a cancellation confirmation email.",
+        "height": 200,
+        "width": 240,
+        "color": 7
+      },
+      "id": "sticky-reschedule-3",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2352,
+        -650
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 3B. Reschedule Path\nUpdates the existing Google Calendar event with the new time and sends a reschedule confirmation.",
+        "height": 200,
+        "width": 240,
+        "color": 5
+      },
+      "id": "sticky-reschedule-4",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2352,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 4. History Logging\nUpdates the lead status in the database and logs the action to `booking_history` for audit trails.",
+        "height": 200,
+        "width": 300,
+        "color": 2
+      },
+      "id": "sticky-reschedule-5",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1472,
+        -550
+      ]
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -3232,
+        -272
+      ],
+      "id": "5c7a0e9e-4975-4f58-8797-2f4ff372bb52"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract action: 'reschedule' or 'cancel'\nconst input = $input.all()[0].json;\n\nconst action = input.action || 'cancel'; // 'reschedule' or 'cancel'\nconst sessionId = input.session_id || input.sessionId;\nconst newDateTime = input.newDateTime || input.preferredDateTime; // For reschedule\nconst reason = input.reason || input.notes || 'No reason provided';\n\nif (!sessionId) {\n  throw new Error('session_id is required');\n}\n\nif (action === 'reschedule' && !newDateTime) {\n  throw new Error('newDateTime is required for rescheduling');\n}\n\nreturn [{\n  json: {\n    action,\n    session_id: sessionId,\n    newDateTime,\n    reason,\n    timezone: input.timezone || 'UTC'\n  }\n}];"
+      },
+      "name": "Parse Action",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3008,
+        -272
+      ],
+      "id": "bb721764-740a-4a94-ac7d-44048380fbfd"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "value": "public",
+          "mode": "list"
+        },
+        "table": {
+          "__rl": true,
+          "value": "leads",
+          "mode": "list"
+        },
+        "where": {
+          "values": [
+            {
+              "column": "session_id",
+              "value": "={{ $json.session_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Get Lead Details",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2784,
+        -272
+      ],
+      "id": "005fcf4a-b407-4130-b1e9-77c33dea11d9",
+      "credentials": {
+        "postgres": {
+          "id": "nfaRubeW0DdoPBU4",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "action-check",
+              "leftValue": "={{ $('Parse Action').item.json.action }}",
+              "rightValue": "cancel",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "Cancel or Reschedule?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -2560,
+        -272
+      ],
+      "id": "5cd81823-85bb-4f73-a2ec-f353878d1d72"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "primary",
+          "mode": "list"
+        },
+        "eventId": "={{ $('Get Lead Details').item.json.google_event_id }}",
+        "options": {
+          "sendUpdates": "all"
+        }
+      },
+      "name": "Delete Google Calendar Event",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.2,
+      "position": [
+        -2352,
+        -384
+      ],
+      "id": "c5227dd5-5356-418f-b9d4-10cd271cb92a",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "JUdbgINgmrro3N5j",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare new event data for rescheduling\nconst parseData = $('Parse Action').item.json;\nconst leadData = $('Get Lead Details').item.json;\n\nconst newStartDate = new Date(parseData.newDateTime);\nif (isNaN(newStartDate.getTime())) {\n  throw new Error('Invalid newDateTime');\n}\n\nconst durationMinutes = 30;\nconst endDate = new Date(newStartDate.getTime() + durationMinutes * 60000);\n\nconst formattedDate = new Intl.DateTimeFormat('en-US', {\n  weekday: 'long',\n  year: 'numeric',\n  month: 'long',\n  day: 'numeric',\n  hour: 'numeric',\n  minute: 'numeric',\n  timeZoneName: 'short',\n  timeZone: parseData.timezone\n}).format(newStartDate);\n\nreturn [{\n  json: {\n    eventId: leadData.google_event_id,\n    start: newStartDate.toISOString(),\n    end: endDate.toISOString(),\n    title: `Meeting with ${leadData.name || 'Guest'}`,\n    description: `Rescheduled meeting\\n\\nOriginal reason: ${parseData.reason}`,\n    formattedDate,\n    oldDateTime: leadData.booked_at\n  }\n}];"
+      },
+      "name": "Prepare Reschedule Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2352,
+        -144
+      ],
+      "id": "975f2bd5-722c-496f-9739-d98337d87e7a"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "primary",
+          "mode": "list"
+        },
+        "eventId": "={{ $json.eventId }}",
+        "updateFields": {
+          "sendUpdates": "all"
+        }
+      },
+      "name": "Update Google Calendar Event",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.2,
+      "position": [
+        -2128,
+        -144
+      ],
+      "id": "447ba819-dfd0-43a5-9806-b7be23280707",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "JUdbgINgmrro3N5j",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Send cancellation confirmation\nconst leadData = $('Get Lead Details').item.json;\nconst parseData = $('Parse Action').item.json;\n\nconst emailBody = `Hi ${leadData.name || 'there'},\\n\\nYour meeting has been cancelled as requested.\\n\\nReason: ${parseData.reason}\\n\\nIf you'd like to reschedule, simply reply to this email or book a new time through our chatbot.\\n\\nBest regards,\\nThe Atliso Team`;\n\nreturn [{\n  json: {\n    toEmail: leadData.email,\n    subject: '❌ Meeting Cancelled',\n    emailBody,\n    action: 'cancelled'\n  }\n}];"
+      },
+      "name": "Prepare Cancel Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2128,
+        -384
+      ],
+      "id": "93edabc9-814b-4680-b452-279fa71790fb"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Send reschedule confirmation\nconst leadData = $('Get Lead Details').item.json;\nconst rescheduleData = $('Prepare Reschedule Data').item.json;\nconst calendarEvent = $('Update Google Calendar Event').item.json;\n\nconst meetingUrl = calendarEvent.hangoutLink || calendarEvent.conferenceData?.entryPoints?.[0]?.uri;\nconst eventUrl = calendarEvent.htmlLink;\n\nconst emailBody = `Hi ${leadData.name || 'there'},\\n\\nYour meeting has been rescheduled!\\n\\n📅 New Time: ${rescheduleData.formattedDate}\\n`;\n\nlet body = emailBody;\nif (meetingUrl) {\n  body += `🎥 Google Meet: ${meetingUrl}\\n`;\n}\nif (eventUrl) {\n  body += `📋 Calendar: ${eventUrl}\\n`;\n}\n\nbody += `\\nA calendar update has been sent.\\n\\nBest regards,\\nThe Atliso Team`;\n\nreturn [{\n  json: {\n    toEmail: leadData.email,\n    subject: '✅ Meeting Rescheduled',\n    emailBody: body,\n    action: 'rescheduled',\n    newDateTime: rescheduleData.start\n  }\n}];"
+      },
+      "name": "Prepare Reschedule Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1904,
+        -144
+      ],
+      "id": "eaebe107-7955-4f62-8eb9-8302ab16d976"
+    },
+    {
+      "parameters": {
+        "fromEmail": "waynekuvi@gmail.com",
+        "toEmail": "={{ $json.toEmail }}",
+        "subject": "={{ $json.subject }}",
+        "text": "={{ $json.emailBody }}",
+        "options": {}
+      },
+      "name": "Send Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [
+        -1680,
+        -272
+      ],
+      "id": "f16c0ae6-cdf9-49db-b738-92168d688f98",
+      "webhookId": "8e229c11-b3af-4310-a940-b2ccfaa09f9f",
+      "credentials": {
+        "smtp": {
+          "id": "IIzLfZtfHmk5zeTf",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "value": "public",
+          "mode": "list"
+        },
+        "table": {
+          "__rl": true,
+          "value": "leads",
+          "mode": "list"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "session_id"
+          ],
+          "value": {
+            "is_booked": false,
+            "status": "LOST",
+            "booking_url": null,
+            "meeting_url": null
+          },
+          "schema": []
+        },
+        "options": {}
+      },
+      "name": "Update Lead Cancelled",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1472,
+        -384
+      ],
+      "id": "e8dccf0e-01e9-4b5f-9a14-e55a5196567b",
+      "credentials": {
+        "postgres": {
+          "id": "nfaRubeW0DdoPBU4",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "value": "public",
+          "mode": "list"
+        },
+        "table": {
+          "__rl": true,
+          "value": "leads",
+          "mode": "list"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "session_id"
+          ],
+          "value": {
+            "booked_at": "={{ $('Prepare Reschedule Email').item.json.newDateTime }}"
+          },
+          "schema": []
+        },
+        "options": {}
+      },
+      "name": "Update Lead Rescheduled",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1472,
+        -144
+      ],
+      "id": "f0513bef-cc37-4b85-8017-4dcb2f2bf904",
+      "credentials": {
+        "postgres": {
+          "id": "nfaRubeW0DdoPBU4",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log action to history\nconst parseData = $('Parse Action').item.json;\nconst leadData = $('Get Lead Details').item.json;\n\nconst action = parseData.action === 'cancel' ? 'cancelled' : 'rescheduled';\n\nreturn [{\n  json: {\n    session_id: parseData.session_id,\n    event_id: leadData.google_event_id,\n    action,\n    old_datetime: leadData.booked_at,\n    new_datetime: parseData.newDateTime || null,\n    changed_by: 'user',\n    notes: parseData.reason\n  }\n}];"
+      },
+      "name": "Prepare History Log",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1248,
+        -272
+      ],
+      "id": "e2add5e1-b749-4dde-8c74-7a0fe79db0ea"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "value": "public",
+          "mode": "list"
+        },
+        "table": {
+          "__rl": true,
+          "value": "booking_history",
+          "mode": "list"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "session_id": "={{ $json.session_id }}",
+            "event_id": "={{ $json.event_id }}",
+            "action": "={{ $json.action }}",
+            "old_datetime": "={{ $json.old_datetime }}",
+            "new_datetime": "={{ $json.new_datetime }}",
+            "changed_by": "={{ $json.changed_by }}",
+            "notes": "={{ $json.notes }}"
+          },
+          "schema": []
+        },
+        "options": {}
+      },
+      "name": "Log to History",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1024,
+        -272
+      ],
+      "id": "f48e8047-e77a-43ee-93cd-60135520b016",
+      "credentials": {
+        "postgres": {
+          "id": "nfaRubeW0DdoPBU4",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Parse Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Action": {
+      "main": [
+        [
+          {
+            "node": "Get Lead Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Lead Details": {
+      "main": [
+        [
+          {
+            "node": "Cancel or Reschedule?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cancel or Reschedule?": {
+      "main": [
+        [
+          {
+            "node": "Delete Google Calendar Event",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Reschedule Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Google Calendar Event": {
+      "main": [
+        [
+          {
+            "node": "Prepare Cancel Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Reschedule Data": {
+      "main": [
+        [
+          {
+            "node": "Update Google Calendar Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Google Calendar Event": {
+      "main": [
+        [
+          {
+            "node": "Prepare Reschedule Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Cancel Email": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Reschedule Email": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "main": [
+        [
+          {
+            "node": "Update Lead Cancelled",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Lead Rescheduled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Lead Cancelled": {
+      "main": [
+        [
+          {
+            "node": "Prepare History Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Lead Rescheduled": {
+      "main": [
+        [
+          {
+            "node": "Prepare History Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare History Log": {
+      "main": [
+        [
+          {
+            "node": "Log to History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "57095b7ebf9f0cc912de39ec13377b138a89a4a1aca34e89a8a4f9bb3ff774e3"
+  }
+}

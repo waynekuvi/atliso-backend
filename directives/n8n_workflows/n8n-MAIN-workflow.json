@@ -1,0 +1,704 @@
+{
+    "nodes": [
+        {
+            "parameters": {
+                "content": "## 1. Webhook Entry\nReceives chat messages from the frontend. Fetches organization config and bot personality settings.",
+                "height": 220,
+                "width": 300,
+                "color": 4
+            },
+            "id": "sticky-main-1",
+            "name": "Sticky Note",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                7632,
+                -1350
+            ]
+        },
+        {
+            "parameters": {
+                "content": "## 2. RAG Pipeline\nEmbeds the user query and searches the vector database for relevant knowledge base articles.",
+                "height": 200,
+                "width": 280,
+                "color": 3
+            },
+            "id": "sticky-main-2",
+            "name": "Sticky Note",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                8304,
+                -800
+            ]
+        },
+        {
+            "parameters": {
+                "content": "## 3. Dynamic Prompt\nMerges bot personality + RAG context + user context into a final system prompt for the AI.",
+                "height": 220,
+                "width": 300,
+                "color": 6
+            },
+            "id": "sticky-main-3",
+            "name": "Sticky Note",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                8736,
+                -1350
+            ]
+        },
+        {
+            "parameters": {
+                "content": "## 4. AI Agent\nThe core conversational agent. Uses memory and tools to handle the user request.",
+                "height": 200,
+                "width": 260,
+                "color": 5
+            },
+            "id": "sticky-main-4",
+            "name": "Sticky Note",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                9184,
+                -1350
+            ]
+        },
+        {
+            "parameters": {
+                "content": "## 5. Agent Tools\nCapabilities the AI can use: Booking, Rescheduling, and Ending Conversation.",
+                "height": 200,
+                "width": 300,
+                "color": 7
+            },
+            "id": "sticky-main-5",
+            "name": "Sticky Note",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                9248,
+                -800
+            ]
+        },
+        {
+            "parameters": {
+                "content": "## 6. Response Handling\nSends the AI response back to the user and triggers a background lead capture workflow.",
+                "height": 220,
+                "width": 300,
+                "color": 2
+            },
+            "id": "sticky-main-6",
+            "name": "Sticky Note",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                9552,
+                -1350
+            ]
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "chatbot",
+                "responseMode": "responseNode",
+                "options": {}
+            },
+            "id": "3a140276-cf1b-4a6a-b34f-622f14d44e4d",
+            "name": "Chatbot Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 2.1,
+            "position": [
+                7632,
+                -1152
+            ],
+            "webhookId": "chatbot-webhook-id"
+        },
+        {
+            "parameters": {
+                "jsCode": "const chatbotData = $input.all()[0].json;\nconst userMessage = chatbotData.message || chatbotData.body?.message || '';\nconst sessionId = chatbotData.sessionId || chatbotData.sessionKey || chatbotData.body?.sessionId || `session-${Date.now()}`;\nconst customerName = chatbotData.body?.customerName || chatbotData.customerName || 'Anonymous Guest';\nconst customerEmail = chatbotData.body?.customerEmail || chatbotData.customerEmail || '';\nconst orgId = chatbotData.org_id || chatbotData.body?.org_id || 'cmiryx9510001wx0bzs3wo78b';\n\nreturn [{\n  json: {\n    chatInput: userMessage,\n    sessionId: sessionId,\n    customerName: customerName,\n    customerEmail: customerEmail,\n    orgId: orgId\n  }\n}];"
+            },
+            "id": "af2e69cb-0980-48d2-a48e-b8379bdc1328",
+            "name": "Transform Message",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                7856,
+                -1152
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "select",
+                "schema": {
+                    "__rl": true,
+                    "value": "public",
+                    "mode": "list"
+                },
+                "table": {
+                    "__rl": true,
+                    "value": "bot_configs",
+                    "mode": "list"
+                },
+                "limit": 1,
+                "where": {
+                    "values": [
+                        {
+                            "column": "org_id",
+                            "value": "={{ $json.orgId }}"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "2a5d953f-fe42-4cf4-85a1-471b61741967",
+            "name": "Fetch Bot Config",
+            "type": "n8n-nodes-base.postgres",
+            "typeVersion": 2.6,
+            "position": [
+                8080,
+                -1152
+            ],
+            "credentials": {
+                "postgres": {
+                    "id": "nfaRubeW0DdoPBU4",
+                    "name": "Postgres account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "select",
+                "schema": {
+                    "__rl": true,
+                    "value": "public",
+                    "mode": "list"
+                },
+                "table": {
+                    "__rl": true,
+                    "value": "bot_templates",
+                    "mode": "list"
+                },
+                "limit": 1,
+                "where": {
+                    "values": [
+                        {
+                            "column": "id",
+                            "value": "={{ $json.template_id }}"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "92e0b4a2-85b3-4225-95a7-d35a68352678",
+            "name": "Fetch Bot Template",
+            "type": "n8n-nodes-base.postgres",
+            "typeVersion": 2.6,
+            "position": [
+                8304,
+                -1152
+            ],
+            "credentials": {
+                "postgres": {
+                    "id": "nfaRubeW0DdoPBU4",
+                    "name": "Postgres account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://api.openai.com/v1/embeddings",
+                "authentication": "predefinedCredentialType",
+                "nodeCredentialType": "openAiApi",
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={\n  \"input\": {{ JSON.stringify($('Transform Message').first().json.chatInput) }},\n  \"model\": \"text-embedding-ada-002\"\n}",
+                "options": {}
+            },
+            "id": "cb193945-0909-4a8f-a32f-37d1a822ef4f",
+            "name": "Embed User Query",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                8304,
+                -928
+            ],
+            "credentials": {
+                "openAiApi": {
+                    "id": "cvBKt59FFYm0I6mM",
+                    "name": "OpenAi account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "=SELECT content, 1 - (embedding <=> '[{{ $json.data[0].embedding.join(',') }}]'::vector) as similarity\nFROM knowledge_vectors\nWHERE org_id = '{{ $('Transform Message').first().json.orgId }}'\nORDER BY embedding <=> '[{{ $json.data[0].embedding.join(',') }}]'::vector\nLIMIT 3;",
+                "options": {}
+            },
+            "id": "150b47cd-91d9-4fc5-a963-2367dd9612c2",
+            "name": "Search Knowledge Base",
+            "type": "n8n-nodes-base.postgres",
+            "typeVersion": 2.6,
+            "position": [
+                8512,
+                -928
+            ],
+            "alwaysOutputData": true,
+            "credentials": {
+                "postgres": {
+                    "id": "nfaRubeW0DdoPBU4",
+                    "name": "Postgres account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Get data from previous nodes\nconst inputData = $('Transform Message').first().json;\nconst botConfig = $('Fetch Bot Config').first().json;\n\n// Handle missing template gracefully\nlet botTemplate = {};\ntry {\n  const templateResult = $('Fetch Bot Template').first();\n  if (templateResult && templateResult.json) {\n    botTemplate = templateResult.json;\n  }\n} catch (e) {\n  botTemplate = {};\n}\n\n// Get knowledge base results - handle case where no results\nlet knowledgeContext = '';\ntry {\n  const knowledgeResults = $('Search Knowledge Base').all();\n  \n  if (knowledgeResults && knowledgeResults.length > 0) {\n    const relevantDocs = knowledgeResults\n      .filter(item => item.json && item.json.content && item.json.similarity > 0.5)\n      .map((item, idx) => `[${idx + 1}] ${item.json.content}`)\n      .join('\\n\\n');\n    \n    if (relevantDocs && relevantDocs.length > 0) {\n      knowledgeContext = `\\n\\nRELEVANT KNOWLEDGE BASE CONTEXT:\\nUse the following information to help answer the user\\'s question. If the information is relevant, incorporate it naturally into your response.\\n\\n${relevantDocs}\\n\\n---`;\n    }\n  }\n} catch (e) {\n  knowledgeContext = '';\n}\n\n// Default template if none found\nconst defaultTemplate = {\n  base_system_prompt: `You are {{BOT_NAME}}, a helpful assistant for {{BUSINESS_CONTEXT}}.\\nYour communication style is {{PERSONALITY}} with these qualities: {{TONE_KEYWORDS}}.`,\n  locked_rules: 'Be helpful, concise, and professional.'\n};\n\n// Build the dynamic system prompt\nlet systemPrompt = botTemplate.base_system_prompt || defaultTemplate.base_system_prompt;\n\n// Replace placeholders with client-specific values\nsystemPrompt = systemPrompt\n  .replace(/\\{\\{BOT_NAME\\}\\}/g, botConfig.bot_name || 'AI Assistant')\n  .replace(/\\{\\{BUSINESS_CONTEXT\\}\\}/g, botConfig.business_context || '')\n  .replace(/\\{\\{PERSONALITY\\}\\}/g, botConfig.personality || 'professional')\n  .replace(/\\{\\{TONE_KEYWORDS\\}\\}/g, botConfig.tone_keywords || 'helpful, concise')\n  .replace(/\\{\\{KNOWLEDGE_CONTEXT\\}\\}/g, knowledgeContext);\n\n// Append the locked rules\nsystemPrompt += '\\n\\n' + (botTemplate.locked_rules || defaultTemplate.locked_rules);\n\n// Add knowledge context\nif (knowledgeContext && !systemPrompt.includes('KNOWLEDGE BASE CONTEXT')) {\n  systemPrompt += knowledgeContext;\n}\n\nreturn [{\n  json: {\n    chatInput: inputData.chatInput,\n    sessionId: inputData.sessionId,\n    customerName: inputData.customerName,\n    customerEmail: inputData.customerEmail,\n    orgId: inputData.orgId,\n    systemPrompt: systemPrompt,\n    temperature: Number(botConfig.temperature) || 0.7,\n    model: String(botConfig.model) || 'gpt-4o',\n    maxTokens: Number(botConfig.max_tokens) || 1000,\n    welcomeMessage: botConfig.welcome_message || 'Hi! How can I help you today?',\n    hasKnowledgeContext: knowledgeContext.length > 0\n  }\n}];"
+            },
+            "id": "31a14ab9-d07e-4c82-b80f-195a027822db",
+            "name": "Merge Config & Build Prompt",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                8736,
+                -1152
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "const mergedData = $input.all()[0].json;\n\nreturn [{\n  json: {\n    channelId: mergedData.sessionId,\n    chatInput: mergedData.chatInput,\n    sessionId: mergedData.sessionId,\n    customerName: mergedData.customerName,\n    customerEmail: mergedData.customerEmail,\n    orgId: mergedData.orgId,\n    systemPrompt: mergedData.systemPrompt,\n    temperature: mergedData.temperature,\n    model: mergedData.model,\n    maxTokens: mergedData.maxTokens\n  }\n}];"
+            },
+            "id": "bbdf4cbf-5c07-4dae-97a1-82e09467c11f",
+            "name": "Capture Channel ID",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                8960,
+                -1152
+            ]
+        },
+        {
+            "parameters": {
+                "promptType": "define",
+                "text": "={{ $json.chatInput }}",
+                "options": {
+                    "systemMessage": "={{ $json.systemPrompt }}"
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "typeVersion": 3,
+            "position": [
+                9184,
+                -1152
+            ],
+            "id": "c23e6ff2-5efa-4f9e-8f38-29cf7d11dd52",
+            "name": "AI Agent"
+        },
+        {
+            "parameters": {
+                "model": {
+                    "__rl": true,
+                    "value": "={{ $('Capture Channel ID').first().json.model }}",
+                    "mode": "id"
+                },
+                "builtInTools": {},
+                "options": {
+                    "temperature": "={{ $('Capture Channel ID').first().json.temperature }}"
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "typeVersion": 1.3,
+            "position": [
+                8992,
+                -928
+            ],
+            "id": "f5e647d7-bb31-4cc4-8e10-90acdc4786f2",
+            "name": "OpenAI Chat Model",
+            "credentials": {
+                "openAiApi": {
+                    "id": "cvBKt59FFYm0I6mM",
+                    "name": "OpenAi account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "sessionIdType": "customKey",
+                "sessionKey": "={{ $('Capture Channel ID').item.json.sessionId }}"
+            },
+            "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+            "typeVersion": 1.3,
+            "position": [
+                9120,
+                -928
+            ],
+            "id": "878d6f1a-425e-4102-a339-59066cdb4ec3",
+            "name": "Postgres Chat Memory",
+            "credentials": {
+                "postgres": {
+                    "id": "nfaRubeW0DdoPBU4",
+                    "name": "Postgres account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "toolDescription": "Use this tool to book a NEW meeting when the user wants to schedule a call or demo. Extract: name, email, preferredDateTime (ISO format: YYYY-MM-DDTHH:mm:ss), timezone (optional), phone (optional).",
+                "method": "POST",
+                "url": "=https://anthroponomical-ammie-xerographically.ngrok-free.dev/api/v1/workflows/booking",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={\n  \"name\": \"{{ $json.name }}\",\n  \"email\": \"{{ $json.email }}\",\n  \"preferredDateTime\": \"{{ $json.preferredDateTime }}\",\n  \"sessionId\": \"{{ $('Capture Channel ID').first().json.sessionId }}\",\n  \"timezone\": \"{{ $json.timezone || 'UTC' }}\",\n  \"phone\": \"{{ $json.phone || null }}\"\n}",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.httpRequestTool",
+            "typeVersion": 4.3,
+            "position": [
+                9248,
+                -928
+            ],
+            "id": "762d828e-b256-4346-871f-977e2595637b",
+            "name": "Book Meeting"
+        },
+        {
+            "parameters": {
+                "toolDescription": "Use this tool to RESCHEDULE or CANCEL an existing meeting. Extract: action ('reschedule' or 'cancel'), newDateTime (if rescheduling, ISO format: YYYY-MM-DDTHH:mm:ss), timezone, reason. ALWAYS confirm before cancelling.",
+                "method": "POST",
+                "url": "=https://anthroponomical-ammie-xerographically.ngrok-free.dev/api/v1/workflows/reschedule",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={\n  \"action\": \"{{ $json.action || 'cancel' }}\",\n  \"sessionId\": \"{{ $('Capture Channel ID').first().json.sessionId }}\",\n  \"newDateTime\": \"{{ $json.newDateTime }}\",\n  \"timezone\": \"{{ $json.timezone || 'UTC' }}\",\n  \"reason\": \"{{ $json.reason || 'User requested' }}\"\n}",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.httpRequestTool",
+            "typeVersion": 4.3,
+            "position": [
+                9376,
+                -928
+            ],
+            "id": "4d90d71e-f86f-4fbc-b41c-6393a61ca375",
+            "name": "Reschedule or Cancel Meeting"
+        },
+        {
+            "parameters": {
+                "description": "Use this tool ONLY when the conversation is fully complete.",
+                "workflowId": {
+                    "__rl": true,
+                    "value": "9Tcn8nShTG9EmPXG",
+                    "mode": "list",
+                    "cachedResultUrl": "/workflow/9Tcn8nShTG9EmPXG",
+                    "cachedResultName": "Tool - End Conversation"
+                },
+                "workflowInputs": {
+                    "mappingMode": "defineBelow",
+                    "value": {},
+                    "matchingColumns": [],
+                    "schema": [],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                }
+            },
+            "id": "1f87dd55-9da7-4a53-be10-d6ca16e00b9d",
+            "name": "End Conversation",
+            "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+            "position": [
+                9504,
+                -928
+            ],
+            "typeVersion": 2.2
+        },
+        {
+            "parameters": {
+                "jsCode": "const aiOutput = $input.all()[0].json;\nconst responseText = aiOutput.output || aiOutput.text || aiOutput.response || 'No response generated';\nconst channelData = $('Capture Channel ID').first().json;\n\nreturn [{\n  json: {\n    aiResponse: responseText,\n    channelId: channelData.channelId,\n    customerName: channelData.customerName,\n    customerEmail: channelData.customerEmail,\n    sessionId: channelData.sessionId,\n    orgId: channelData.orgId,\n    chatInput: channelData.chatInput\n  }\n}];"
+            },
+            "id": "bde55cdf-e0e0-4865-a1b0-e686bdd187bf",
+            "name": "Capture AI Output",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                9552,
+                -1152
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ JSON.stringify({ output: $json.aiResponse }) }}",
+                "options": {}
+            },
+            "id": "f25fcd06-cdfc-495f-a654-4f7f793b23e3",
+            "name": "Respond to Webhook",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.1,
+            "position": [
+                9760,
+                -1152
+            ]
+        },
+        {
+            "parameters": {
+                "workflowId": {
+                    "__rl": true,
+                    "value": "GZDqHZkf44OfgRBC",
+                    "mode": "list",
+                    "cachedResultUrl": "/workflow/GZDqHZkf44OfgRBC",
+                    "cachedResultName": "Lead Capture Sub-Workflow"
+                },
+                "workflowInputs": {
+                    "mappingMode": "defineBelow",
+                    "value": {
+                        "session_id": "={{ $json.sessionId }}",
+                        "org_id": "={{ $json.orgId }}",
+                        "chat_query": "={{ $json.chatInput + ' | AI Response: ' + $json.aiResponse }}"
+                    },
+                    "matchingColumns": [],
+                    "schema": [
+                        {
+                            "id": "session_id",
+                            "displayName": "session_id",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "canBeUsedToMatch": true,
+                            "type": "string",
+                            "removed": false
+                        },
+                        {
+                            "id": "org_id",
+                            "displayName": "org_id",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "canBeUsedToMatch": true,
+                            "type": "string",
+                            "removed": false
+                        },
+                        {
+                            "id": "chat_query",
+                            "displayName": "chat_query",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "canBeUsedToMatch": true,
+                            "type": "string",
+                            "removed": false
+                        }
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                },
+                "mode": "nowait",
+                "options": {}
+            },
+            "id": "77c6a1a4-461b-4666-a5d0-155c7db0e2f8",
+            "name": "Always Save Lead (Background)",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1.2,
+            "position": [
+                9760,
+                -960
+            ]
+        }
+    ],
+    "connections": {
+        "Chatbot Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Transform Message",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Transform Message": {
+            "main": [
+                [
+                    {
+                        "node": "Fetch Bot Config",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Fetch Bot Config": {
+            "main": [
+                [
+                    {
+                        "node": "Fetch Bot Template",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Embed User Query",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Fetch Bot Template": {
+            "main": [
+                [
+                    {
+                        "node": "Merge Config & Build Prompt",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Embed User Query": {
+            "main": [
+                [
+                    {
+                        "node": "Search Knowledge Base",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Search Knowledge Base": {
+            "main": [
+                [
+                    {
+                        "node": "Merge Config & Build Prompt",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Merge Config & Build Prompt": {
+            "main": [
+                [
+                    {
+                        "node": "Capture Channel ID",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Capture Channel ID": {
+            "main": [
+                [
+                    {
+                        "node": "AI Agent",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "AI Agent": {
+            "main": [
+                [
+                    {
+                        "node": "Capture AI Output",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "OpenAI Chat Model": {
+            "ai_languageModel": [
+                [
+                    {
+                        "node": "AI Agent",
+                        "type": "ai_languageModel",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Postgres Chat Memory": {
+            "ai_memory": [
+                [
+                    {
+                        "node": "AI Agent",
+                        "type": "ai_memory",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Book Meeting": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "AI Agent",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Reschedule or Cancel Meeting": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "AI Agent",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "End Conversation": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "AI Agent",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Capture AI Output": {
+            "main": [
+                [
+                    {
+                        "node": "Respond to Webhook",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Always Save Lead (Background)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {},
+    "meta": {
+        "templateCredsSetupCompleted": true,
+        "instanceId": "57095b7ebf9f0cc912de39ec13377b138a89a4a1aca34e89a8a4f9bb3ff774e3"
+    }
+}

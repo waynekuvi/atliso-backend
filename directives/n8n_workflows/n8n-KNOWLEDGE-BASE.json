@@ -1,0 +1,349 @@
+{
+    "nodes": [
+        {
+            "parameters": {
+                "content": "## 1. Document Ingestion\nReceives a PDF URL via webhook, downloads the file, and extracts raw text contents.",
+                "height": 220,
+                "width": 300,
+                "color": 4
+            },
+            "id": "sticky-kb-1",
+            "name": "Sticky Note",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                1856,
+                -650
+            ]
+        },
+        {
+            "parameters": {
+                "content": "## 2. Text Processing\nSplits text into chunks with overlap and generates OpenAI embeddings (Ada-002) for each chunk.",
+                "height": 220,
+                "width": 300,
+                "color": 6
+            },
+            "id": "sticky-kb-2",
+            "name": "Sticky Note",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                2736,
+                -650
+            ]
+        },
+        {
+            "parameters": {
+                "content": "## 3. Vector Storage\nStores embeddings and metadata in pgvector (Postgres) and marks the document as 'ready'.",
+                "height": 200,
+                "width": 300,
+                "color": 7
+            },
+            "id": "sticky-kb-3",
+            "name": "Sticky Note",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                3408,
+                -650
+            ]
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "embed-pdf",
+                "responseMode": "responseNode",
+                "options": {}
+            },
+            "id": "60babeb2-c983-46f5-a78b-2261c96a04b3",
+            "name": "PDF Upload Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 2.1,
+            "position": [
+                1856,
+                -416
+            ],
+            "webhookId": "embed-pdf-webhook"
+        },
+        {
+            "parameters": {
+                "jsCode": "const input = $input.all()[0].json;\n\n// Extract parameters from webhook\nconst orgId = input.body?.org_id || input.org_id;\nconst fileUrl = input.body?.file_url || input.file_url;\nconst filename = input.body?.filename || input.filename || 'document.pdf';\nconst docId = input.body?.doc_id || input.doc_id;\n\nif (!orgId || !fileUrl) {\n  throw new Error('Missing required fields: org_id and file_url are required');\n}\n\nreturn [{\n  json: {\n    orgId,\n    fileUrl,\n    filename,\n    docId\n  }\n}];"
+            },
+            "id": "b12634f8-93f1-4a59-8e1f-f384c305e717",
+            "name": "Parse Input",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                2080,
+                -416
+            ]
+        },
+        {
+            "parameters": {
+                "url": "={{ $json.fileUrl }}",
+                "options": {
+                    "response": {
+                        "response": {
+                            "responseFormat": "file"
+                        }
+                    }
+                }
+            },
+            "id": "88c24669-9813-4026-9b21-4094816b56b9",
+            "name": "Download PDF",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                2304,
+                -416
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "pdf",
+                "options": {}
+            },
+            "id": "7bcfef92-cf6f-4cf7-9fc0-cbfa7cac3b8e",
+            "name": "Extract Text from PDF",
+            "type": "n8n-nodes-base.extractFromFile",
+            "typeVersion": 1,
+            "position": [
+                2528,
+                -416
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "const input = $input.all()[0];\nconst text = input.json.text || input.json.data || '';\nconst metadata = $('Parse Input').first().json;\n\n// Configuration\nconst CHUNK_SIZE = 1000;  // characters per chunk\nconst CHUNK_OVERLAP = 200; // overlap between chunks\n\n// Clean the text\nlet cleanText = text\n  .replace(/\\r\\n/g, '\\n')\n  .replace(/\\r/g, '\\n')\n  .replace(/\\n{3,}/g, '\\n\\n')\n  .replace(/\\s+/g, ' ')\n  .trim();\n\n// Split into chunks with overlap\nconst chunks = [];\nlet startIndex = 0;\n\nwhile (startIndex < cleanText.length) {\n  let endIndex = startIndex + CHUNK_SIZE;\n  \n  // Try to end at a sentence boundary\n  if (endIndex < cleanText.length) {\n    const lastPeriod = cleanText.lastIndexOf('.', endIndex);\n    const lastNewline = cleanText.lastIndexOf('\\n', endIndex);\n    const breakPoint = Math.max(lastPeriod, lastNewline);\n    \n    if (breakPoint > startIndex + CHUNK_SIZE * 0.5) {\n      endIndex = breakPoint + 1;\n    }\n  }\n  \n  const chunk = cleanText.slice(startIndex, endIndex).trim();\n  \n  if (chunk.length > 50) {  // Only keep meaningful chunks\n    chunks.push({\n      content: chunk,\n      orgId: metadata.orgId,\n      docId: metadata.docId,\n      filename: metadata.filename,\n      chunkIndex: chunks.length,\n      charStart: startIndex,\n      charEnd: endIndex\n    });\n  }\n  \n  startIndex = endIndex - CHUNK_OVERLAP;\n  \n  // Prevent infinite loop\n  if (startIndex >= cleanText.length - 50) break;\n}\n\n// Return chunks as separate items for batch processing\nreturn chunks.map(chunk => ({ json: chunk }));"
+            },
+            "id": "2cfe0e67-9bd4-47f9-9e4b-556fd478676e",
+            "name": "Chunk Text",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                2736,
+                -416
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://api.openai.com/v1/embeddings",
+                "authentication": "predefinedCredentialType",
+                "nodeCredentialType": "openAiApi",
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={\n  \"input\": {{ JSON.stringify($json.content) }},\n  \"model\": \"text-embedding-ada-002\"\n}",
+                "options": {
+                    "batching": {
+                        "batch": {
+                            "batchSize": 20
+                        }
+                    }
+                }
+            },
+            "id": "19eac5af-efaf-4806-a9d0-f789ef03ff0b",
+            "name": "Create Embedding",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                2960,
+                -416
+            ],
+            "credentials": {
+                "openAiApi": {
+                    "id": "cvBKt59FFYm0I6mM",
+                    "name": "OpenAi account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "const items = $input.all();\nconst chunkItems = $('Chunk Text').all();\nconst results = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i];\n  const embedding = item.json.data?.[0]?.embedding;\n  \n  // Get original chunk data\n  const chunkData = chunkItems[i]?.json || {};\n  \n  if (embedding && chunkData.content) {\n    results.push({\n      json: {\n        org_id: chunkData.orgId,\n        doc_id: chunkData.docId,\n        content: chunkData.content,\n        embedding: `[${embedding.join(',')}]`,\n        metadata: JSON.stringify({\n          filename: chunkData.filename,\n          chunkIndex: chunkData.chunkIndex,\n          charStart: chunkData.charStart,\n          charEnd: chunkData.charEnd\n        })\n      }\n    });\n  }\n}\n\nif (results.length === 0) {\n  throw new Error('No embeddings were created. Check if the PDF had extractable text.');\n}\n\nreturn results;"
+            },
+            "id": "26d44d01-da49-4974-87c6-5a114e507339",
+            "name": "Prepare Vectors for DB",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                3184,
+                -416
+            ]
+        },
+        {
+            "parameters": {
+                "schema": {
+                    "__rl": true,
+                    "value": "public",
+                    "mode": "list"
+                },
+                "table": {
+                    "__rl": true,
+                    "value": "knowledge_vectors",
+                    "mode": "list"
+                },
+                "columns": {
+                    "mappingMode": "autoMapInputData",
+                    "value": {}
+                },
+                "options": {}
+            },
+            "id": "3c3baa1a-c383-4e8a-bd88-600a7f52d24c",
+            "name": "Insert Vectors",
+            "type": "n8n-nodes-base.postgres",
+            "typeVersion": 2.6,
+            "position": [
+                3408,
+                -416
+            ],
+            "credentials": {
+                "postgres": {
+                    "id": "nfaRubeW0DdoPBU4",
+                    "name": "Postgres account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "=UPDATE knowledge_docs\nSET \n  status = 'ready',\n  chunk_count = {{ $('Chunk Text').all().length }}\nWHERE id = '{{ $('Parse Input').first().json.docId }}';",
+                "options": {}
+            },
+            "id": "0e0428bc-1131-4a7f-bfce-40c02a99c24f",
+            "name": "Update Doc Status",
+            "type": "n8n-nodes-base.postgres",
+            "typeVersion": 2.6,
+            "position": [
+                3616,
+                -416
+            ],
+            "alwaysOutputData": true,
+            "credentials": {
+                "postgres": {
+                    "id": "nfaRubeW0DdoPBU4",
+                    "name": "Postgres account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"success\": true,\n  \"message\": \"PDF processed successfully\",\n  \"chunks\": {{ $('Chunk Text').all().length }},\n  \"doc_id\": \"{{ $('Parse Input').first().json.docId }}\"\n}",
+                "options": {}
+            },
+            "id": "da461a71-d16b-464d-b728-4f9710b02db1",
+            "name": "Respond Success",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.1,
+            "position": [
+                3840,
+                -416
+            ]
+        }
+    ],
+    "connections": {
+        "PDF Upload Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Parse Input",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Parse Input": {
+            "main": [
+                [
+                    {
+                        "node": "Download PDF",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Download PDF": {
+            "main": [
+                [
+                    {
+                        "node": "Extract Text from PDF",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Extract Text from PDF": {
+            "main": [
+                [
+                    {
+                        "node": "Chunk Text",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Chunk Text": {
+            "main": [
+                [
+                    {
+                        "node": "Create Embedding",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Create Embedding": {
+            "main": [
+                [
+                    {
+                        "node": "Prepare Vectors for DB",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Prepare Vectors for DB": {
+            "main": [
+                [
+                    {
+                        "node": "Insert Vectors",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Insert Vectors": {
+            "main": [
+                [
+                    {
+                        "node": "Update Doc Status",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Update Doc Status": {
+            "main": [
+                [
+                    {
+                        "node": "Respond Success",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {},
+    "meta": {
+        "instanceId": "57095b7ebf9f0cc912de39ec13377b138a89a4a1aca34e89a8a4f9bb3ff774e3"
+    }
+}

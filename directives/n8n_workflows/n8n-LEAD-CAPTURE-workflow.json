@@ -1,0 +1,351 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 1. AI Extraction\nUses an AI Agent to extract structured lead data (name, email, etc.) from the unstructured chat conversation.",
+        "height": 220,
+        "width": 300,
+        "color": 4
+      },
+      "id": "sticky-lead-1",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3680,
+        -1850
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 2. Scoring & Logic\nApplies intelligent lead scoring rules (0-100) based on data completeness and quality. Merges with existing lead data.",
+        "height": 220,
+        "width": 320,
+        "color": 6
+      },
+      "id": "sticky-lead-2",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        4480,
+        -1900
+      ]
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "session_id"
+            },
+            {
+              "name": "org_id"
+            },
+            {
+              "name": "chat_query"
+            }
+          ]
+        }
+      },
+      "id": "3f6d3acd-32a3-4cbb-93ac-c817b620c7a6",
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        3680,
+        -1712
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chat_query }}",
+        "options": {
+          "systemMessage": "Extract lead info to RAW JSON: name, email, phone, company, lead_score, is_booked. Use null for missing. No markdown. Always respond with valid JSON only."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        3904,
+        -1712
+      ],
+      "id": "d14606cc-9313-4ffb-ac9e-1f8ea09f1276",
+      "name": "AI Extractor"
+    },
+    {
+      "parameters": {
+        "model": {
+          "value": "gpt-4o"
+        },
+        "builtInTools": {},
+        "options": {
+          "temperature": 0
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        3984,
+        -1488
+      ],
+      "id": "deb87efd-dffc-4ee0-82ab-dd6c513acd5e",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "cvBKt59FFYm0I6mM",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "value": "public",
+          "mode": "list"
+        },
+        "table": {
+          "__rl": true,
+          "value": "leads",
+          "mode": "list"
+        },
+        "returnAll": true,
+        "where": {
+          "values": [
+            {
+              "column": "session_id",
+              "value": "={{ $('When Executed by Another Workflow').first().json.session_id }}"
+            }
+          ]
+        },
+        "options": {
+          "outputColumns": [
+            "session_id",
+            "name",
+            "email",
+            "phone",
+            "company",
+            "score",
+            "status",
+            "org_id"
+          ]
+        }
+      },
+      "id": "906e8f3d-d3bb-4439-a215-8610cf38cf90",
+      "name": "Check Current Session",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        4256,
+        -1712
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "nfaRubeW0DdoPBU4",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * INTELLIGENT LEAD SCORING NODE FOR N8N - SUBWORKFLOW VERSION\n * \n * Place this in the \"Merge & Logic Node\" in your LEAD CAPTURE SUBWORKFLOW\n * This scores the ENTIRE lead based on completeness and quality of information\n * \n * USAGE: Replace the code in \"Merge & Logic Node\" with this\n */\n\n// Get trigger data from the workflow trigger\nconst triggerNode = $('When Executed by Another Workflow');\nconst trigger = triggerNode.first().json;\n\n// Get AI extractor output\nconst aiOutput = $('AI Extractor').first().json.output || '{}';\n\n// Get existing data from database (may be empty/null)\nconst checkSessionItems = $('Check Current Session').all();\nconst existing = (checkSessionItems.length > 0 && checkSessionItems[0].json.session_id) \n  ? checkSessionItems[0].json \n  : {};\n\n// Parse AI extraction with error handling\nlet extracted = {};\ntry {\n  const cleanedOutput = aiOutput.replace(/```json|```/g, '').trim();\n  if (cleanedOutput && cleanedOutput !== '{}') {\n    extracted = JSON.parse(cleanedOutput);\n  }\n} catch (e) {\n  extracted = {};\n}\n\n// Merge logic: AI-extracted values take priority, then existing DB values, then defaults\nconst getValue = (newVal, existingVal, defaultVal = null) => {\n  if (newVal !== null && newVal !== undefined && newVal !== '' && newVal !== 'null') {\n    return newVal;\n  }\n  if (existingVal !== null && existingVal !== undefined && existingVal !== '' && existingVal !== 'null') {\n    return existingVal;\n  }\n  return defaultVal;\n};\n\n// Merged lead data\nconst merged = {\n  name: getValue(extracted.name, existing.name),\n  email: getValue(extracted.email, existing.email),\n  phone: getValue(extracted.phone, existing.phone),\n  company: getValue(extracted.company, existing.company),\n};\n\n// ============================================\n// INTELLIGENT LEAD SCORING SYSTEM\n// ============================================\n// Scores from 0-100 based on data completeness and quality\n// Qualified leads = score > 65 (6.5 out of 10)\n\nlet score = 0;\nlet scoreBreakdown = {};\n\n// 1. NAME SCORING (0-25 points)\nif (merged.name) {\n  const nameParts = merged.name.trim().split(' ');\n  if (nameParts.length >= 2) {\n    score += 25; // Full name = 25 points\n    scoreBreakdown.name = 25;\n  } else if (nameParts.length === 1 && nameParts[0].length >= 2) {\n    score += 15; // First name only = 15 points\n    scoreBreakdown.name = 15;\n  }\n} else {\n  scoreBreakdown.name = 0;\n}\n\n// 2. EMAIL SCORING (0-35 points)\nif (merged.email) {\n  const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\n  const isValidEmail = emailRegex.test(merged.email);\n  \n  if (isValidEmail) {\n    score += 25; // Valid email = 25 points\n    scoreBreakdown.email = 25;\n    \n    // Bonus for business email (not free providers)\n    const freeProviders = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'icloud.com', 'aol.com'];\n    const domain = merged.email.split('@')[1]?.toLowerCase();\n    const isBusinessEmail = domain && !freeProviders.includes(domain);\n    \n    if (isBusinessEmail) {\n      score += 10; // Business email = +10 bonus points\n      scoreBreakdown.emailBonus = 10;\n    }\n  } else {\n    scoreBreakdown.email = 0;\n  }\n} else {\n  scoreBreakdown.email = 0;\n}\n\n// 3. PHONE SCORING (0-25 points)\nif (merged.phone) {\n  // Clean phone number\n  const cleanPhone = merged.phone.replace(/\\D/g, '');\n  \n  if (cleanPhone.length >= 10) {\n    score += 25; // Valid phone = 25 points\n    scoreBreakdown.phone = 25;\n  } else if (cleanPhone.length >= 7) {\n    score += 15; // Partial phone = 15 points\n    scoreBreakdown.phone = 15;\n  }\n} else {\n  scoreBreakdown.phone = 0;\n}\n\n// 4. COMPANY SCORING (0-15 points)\nif (merged.company && merged.company.length >= 2) {\n  score += 15; // Company provided = 15 points\n  scoreBreakdown.company = 15;\n} else {\n  scoreBreakdown.company = 0;\n}\n\n// 5. ENGAGEMENT SCORING (0-15 points)\n// Based on conversation quality from AI extraction\nif (extracted.is_booked === true) {\n  score += 15; // Booking interest = 15 points\n  scoreBreakdown.engagement = 15;\n} else if (aiOutput.length > 100) {\n  score += 10; // Detailed conversation = 10 points\n  scoreBreakdown.engagement = 10;\n} else if (aiOutput.length > 50) {\n  score += 5; // Some engagement = 5 points\n  scoreBreakdown.engagement = 5;\n} else {\n  scoreBreakdown.engagement = 0;\n}\n\n// Cap score at 100\nscore = Math.min(score, 100);\n\n// Determine status based on score and booking intent\nlet status = existing.status || 'NEW';\nif (extracted.is_booked === true) {\n  status = 'BOOKED';\n} else if (score > 65) {\n  status = 'QUALIFIED';\n} else if (score > 30) {\n  status = 'COLD';\n}\n\n// Log scoring breakdown for debugging\nconsole.log('Lead Scoring Breakdown:', {\n  session_id: trigger.session_id,\n  totalScore: score,\n  breakdown: scoreBreakdown,\n  isQualified: score > 65,\n  isCold: score > 30 && score <= 65,\n  status: status\n});\n\n// Return merged data with intelligent score\nreturn [{\n  json: {\n    session_id: trigger.session_id,\n    org_id: trigger.org_id || existing.org_id || 'cmiryx9510001wx0bzs3wo78b',\n    name: merged.name,\n    email: merged.email,\n    phone: merged.phone,\n    company: merged.company,\n    score: score, // Intelligent cumulative score\n    status: status\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4480,
+        -1712
+      ],
+      "id": "f79ae7eb-5333-4164-8204-c839f60d91af",
+      "name": "Merge & Logic Node",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "schema": {
+          "__rl": true,
+          "value": "public",
+          "mode": "list"
+        },
+        "table": {
+          "__rl": true,
+          "value": "leads",
+          "mode": "list"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "session_id"
+          ],
+          "schema": [
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "company",
+              "displayName": "company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "score",
+              "displayName": "score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "org_id",
+              "displayName": "org_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        4704,
+        -1712
+      ],
+      "id": "cc9e75c8-2960-4557-bd3e-20e63e755ead",
+      "name": "Update Database",
+      "credentials": {
+        "postgres": {
+          "id": "nfaRubeW0DdoPBU4",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Extractor": {
+      "main": [
+        [
+          {
+            "node": "Check Current Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Current Session": {
+      "main": [
+        [
+          {
+            "node": "Merge & Logic Node",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge & Logic Node": {
+      "main": [
+        [
+          {
+            "node": "Update Database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "57095b7ebf9f0cc912de39ec13377b138a89a4a1aca34e89a8a4f9bb3ff774e3"
+  }
+}

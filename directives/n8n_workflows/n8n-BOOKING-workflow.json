@@ -1,0 +1,552 @@
+{
+    "nodes": [
+        {
+            "parameters": {
+                "content": "## 1. Input Processing\nExtracts date, time, and contact info from natural language or structured input using Regex and fuzzy matching.",
+                "height": 220,
+                "width": 320,
+                "color": 4
+            },
+            "id": "sticky-booking-1",
+            "name": "Sticky Note",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                -3344,
+                -900
+            ]
+        },
+        {
+            "parameters": {
+                "content": "## 2. Conflict Checking\nQueries the database for existing bookings in the requested time window to prevent double-booking.",
+                "height": 220,
+                "width": 280,
+                "color": 6
+            },
+            "id": "sticky-booking-2",
+            "name": "Sticky Note",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                -2688,
+                -900
+            ]
+        },
+        {
+            "parameters": {
+                "content": "## 3A. Error Handling\nReturns a descriptive error message if a conflict is found, listing the conflicting times.",
+                "height": 200,
+                "width": 240,
+                "color": 7
+            },
+            "id": "sticky-booking-3",
+            "name": "Sticky Note",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                -2016,
+                -400
+            ]
+        },
+        {
+            "parameters": {
+                "content": "## 3B. Booking Execution\nCreates the event in Google Calendar, sends confirmation emails (User & Internal), and returns success.",
+                "height": 240,
+                "width": 300,
+                "color": 5
+            },
+            "id": "sticky-booking-4",
+            "name": "Sticky Note",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                -2016,
+                -1100
+            ]
+        },
+        {
+            "parameters": {
+                "content": "## 4. Data Persistence\nUpdates the lead record in Postgres with 'BOOKED' status and the Google Event ID.",
+                "height": 200,
+                "width": 260,
+                "color": 2
+            },
+            "id": "sticky-booking-5",
+            "name": "Sticky Note",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                -1136,
+                -1000
+            ]
+        },
+        {
+            "parameters": {
+                "inputSource": "passthrough"
+            },
+            "name": "When Executed by Another Workflow",
+            "type": "n8n-nodes-base.executeWorkflowTrigger",
+            "typeVersion": 1.1,
+            "position": [
+                -3344,
+                -656
+            ],
+            "id": "84bf7506-ea88-44e6-87f0-8e32fbcb28a9"
+        },
+        {
+            "parameters": {
+                "jsCode": "// Extract Booking Info with Timezone Detection\nconst input = $input.all()[0].json;\n\nconsole.log('Raw input received:', JSON.stringify(input, null, 2));\n\nlet extractedData = {};\n\ntry {\n  // First check if data is already structured\n  if (input.name && input.email && input.preferredDateTime) {\n    extractedData = input;\n  } else if (input.input) {\n    const inputText = input.input;\n    \n    // Try JSON parsing\n    const jsonMatch = inputText.match(/\\{[^}]+\\}/);\n    if (jsonMatch) {\n      try {\n        extractedData = JSON.parse(jsonMatch[0]);\n      } catch (e) {\n        console.log('JSON parse failed');\n      }\n    }\n    \n    // NEW: Handle \"Meeting regarding X for NAME at DATETIME\" format\n    if (!extractedData.email) {\n      const meetingRegex = /(?:meeting|booking|appointment).*?for\\s+([A-Za-z\\s]+?)\\s+at\\s+(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2})/i;\n      const match = inputText.match(meetingRegex);\n      if (match) {\n        extractedData = {\n          name: match[1].trim(),\n          preferredDateTime: match[2],\n          email: null  // Will need to get from session/lead data\n        };\n      }\n    }\n    \n    // Try comma-separated format\n    if (!extractedData.email && inputText.includes(',')) {\n      const parts = inputText.split(',').map(p => p.trim());\n      const emailIndex = parts.findIndex(p => p.includes('@') || p.includes('.'));\n      const dateIndex = parts.findIndex(p => p.match(/\\d{4}-\\d{2}-\\d{2}/));\n      \n      extractedData = {\n        name: parts[0] || 'Guest',\n        email: emailIndex >= 0 ? parts[emailIndex] : null,\n        preferredDateTime: dateIndex >= 0 ? parts[dateIndex] : null\n      };\n    }\n    \n    // Try regex extraction\n    if (!extractedData.email) {\n      const emailMatch = inputText.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\\.[a-zA-Z0-9_-]+)/);\n      const isoDateMatch = inputText.match(/(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2})/);\n      const nameMatch = inputText.match(/^([A-Za-z\\s]+?)(?:\\s+at|\\s+,|\\s+for)/i) || inputText.match(/for\\s+([A-Za-z\\s]+)/i);\n      \n      extractedData = {\n        email: emailMatch ? emailMatch[1] : null,\n        preferredDateTime: isoDateMatch ? isoDateMatch[1] : extractedData.preferredDateTime,\n        name: nameMatch ? nameMatch[1].trim() : extractedData.name || 'Guest'\n      };\n    }\n  }\n} catch (e) {\n  throw new Error(`Could not extract booking information: ${e.message}`);\n}\n\n// If no email found, try to get it from the input's customerEmail field\nif (!extractedData.email && input.customerEmail) {\n  extractedData.email = input.customerEmail;\n  console.log('✅ Using email from customerEmail field:', extractedData.email);\n}\n\nif (!extractedData.email) {\n  throw new Error('Email is required - please provide your email address');\n}\n\nif (!extractedData.preferredDateTime) {\n  throw new Error('Preferred date/time is required');\n}\n\nconst timezone = extractedData.timezone || 'UTC';\nconst timezoneRegex = /(EST|PST|CST|MST|GMT|UTC|America\\/[A-Za-z_]+|Europe\\/[A-Za-z_]+)/i;\nconst tzMatch = (input.input || '').match(timezoneRegex);\n\nconst output = {\n  name: extractedData.name || 'Guest',\n  email: extractedData.email,\n  phone: extractedData.phone || null,\n  preferredDateTime: extractedData.preferredDateTime,\n  timezone: tzMatch ? tzMatch[1] : timezone,\n  notes: extractedData.notes || '',\n  session_id: input.session_id || input.sessionId || null,\n  action: extractedData.action || 'book'\n};\n\n// Cleanup\nif (output.name) {\n  output.name = output.name.replace(/^(my name is |i am |this is |name: )/i, '').trim();\n}\n\nif (output.email) {\n  output.email = output.email.replace(/^(my email is |email: |email address: )/i, '').trim();\n}\n\nif (output.preferredDateTime) {\n  output.preferredDateTime = output.preferredDateTime.replace(/^(preferred date\\/time: |and my preferred date is |preferred date: |date: |time: )/i, '').replace(/\\.$/, '').trim();\n}\n\nconsole.log('✅ Final extracted data:', JSON.stringify(output, null, 2));\n\nreturn [{json: output}];\n"
+            },
+            "name": "Extract Booking Info",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -3136,
+                -656
+            ],
+            "id": "bb4f71e9-e0f0-44e2-a18b-1b50dc12ae92"
+        },
+        {
+            "parameters": {
+                "jsCode": "// Prepare booking data with timezone support\nconst input = $input.all()[0].json;\n\nconst name = input.name || 'Guest';\nconst email = input.email;\nif (!email) {\n  throw new Error('Email is required for booking');\n}\n\nconst phone = input.phone || null;\nconst timezone = input.timezone || 'UTC';\nconst notes = input.notes || '';\n\nlet start = input.preferredDateTime;\nif (!start) {\n  throw new Error('preferredDateTime is required');\n}\n\nstart = start.replace(/^(preferred date\\/time: |and my preferred date is |preferred date: |date: |time: )/i, '').replace(/\\.$/, '').trim();\n\nlet startDate;\ntry {\n  if (start.match(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}[+-]\\d{2}:\\d{2}$/)) {\n    startDate = new Date(start);\n  } else if (start.match(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}$/)) {\n    start += 'Z';\n    startDate = new Date(start);\n  } else if (!start.includes('T')) {\n    start += 'T12:00:00Z';\n    startDate = new Date(start);\n  } else {\n    startDate = new Date(start);\n  }\n  \n  if (isNaN(startDate.getTime())) {\n    throw new Error(`Could not parse date: ${start}`);\n  }\n} catch (error) {\n  throw new Error(`Date validation failed: ${error.message}`);\n}\n\nconst durationMinutes = 30;\nconst endDate = new Date(startDate.getTime() + durationMinutes * 60000);\nconst startISO = startDate.toISOString();\nconst endISO = endDate.toISOString();\n\nconst options = {\n  weekday: 'long',\n  year: 'numeric',\n  month: 'long',\n  day: 'numeric',\n  hour: 'numeric',\n  minute: 'numeric',\n  timeZoneName: 'short',\n  timeZone: timezone\n};\nconst formattedDate = new Intl.DateTimeFormat('en-US', options).format(startDate);\n\nconst meetingTitle = `Meeting with ${name}`;\nconst meetingDescription = `Booking Details:\\n\\nName: ${name}\\nEmail: ${email}\\nPhone: ${phone || 'Not provided'}\\nTimezone: ${timezone}\\nNotes: ${notes || 'None'}\\n\\nThis meeting was automatically scheduled via chatbot.`;\n\nreturn [{\n  json: {\n    name,\n    email,\n    phone,\n    timezone,\n    notes,\n    start: startISO,\n    end: endISO,\n    formattedDate,\n    durationMinutes,\n    meetingTitle,\n    meetingDescription,\n    session_id: input.session_id,\n    action: input.action || 'book'\n  }\n}];"
+            },
+            "name": "Prepare Booking Data",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -2912,
+                -656
+            ],
+            "id": "c8f0d492-ac90-4779-a7b3-e68e4b3100a9"
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "SELECT \n  session_id,\n  name,\n  email,\n  booked_at,\n  booking_url,\n  meeting_url\nFROM leads\nWHERE is_booked = true\n  AND booked_at >= NOW() - INTERVAL '1 day'\n  AND google_event_id IS NOT NULL\nORDER BY booked_at ASC",
+                "options": {}
+            },
+            "name": "Check Calendar Conflicts",
+            "type": "n8n-nodes-base.postgres",
+            "typeVersion": 2.6,
+            "position": [
+                -2688,
+                -656
+            ],
+            "id": "4a81d1da-9c57-4850-9eb4-9f783c56afe5",
+            "credentials": {
+                "postgres": {
+                    "id": "nfaRubeW0DdoPBU4",
+                    "name": "Postgres account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Filter Database Bookings by Time Overlap\n\nconst bookingData = $('Prepare Booking Data').first().json;\nconst requestedStart = new Date(bookingData.start);\nconst requestedEnd = new Date(bookingData.end);\n\nconsole.log('🔍 Checking database for conflicts:', {\n  start: requestedStart.toISOString(),\n  end: requestedEnd.toISOString()\n});\n\nconst allBookings = $input.all();\n\nconsole.log(`📅 Total bookings from database: ${allBookings.length}`);\n\nconst conflictingBookings = allBookings.filter(item => {\n  const booking = item.json;\n  \n  if (!booking.booked_at) return false;\n  \n  const bookingStart = new Date(booking.booked_at);\n  const bookingEnd = new Date(bookingStart.getTime() + 30 * 60 * 1000);\n  \n  const hasOverlap = bookingStart < requestedEnd && bookingEnd > requestedStart;\n  \n  if (hasOverlap) {\n    console.log('⚠️ CONFLICT FOUND:', {\n      name: booking.name,\n      time: bookingStart.toISOString()\n    });\n  }\n  \n  return hasOverlap;\n});\n\nconsole.log(`❌ Total conflicts: ${conflictingBookings.length}`);\n\nif (conflictingBookings.length > 0) {\n  return conflictingBookings;\n} else {\n  return [{\n    json: {\n      ...bookingData,\n      conflictCount: 0,\n      message: 'No conflicts found'\n    }\n  }];\n}"
+            },
+            "name": "Filter Conflicting Events",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -2464,
+                -656
+            ],
+            "id": "06b68fc8-b1f5-4a3d-96b3-c50304a2d49e"
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict"
+                    },
+                    "conditions": [
+                        {
+                            "id": "conflict-check",
+                            "leftValue": "={{ $json.conflictCount ?? $input.all().length }}",
+                            "rightValue": 0,
+                            "operator": {
+                                "type": "number",
+                                "operation": "equals"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "name": "Has Conflicts?",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                -2240,
+                -656
+            ],
+            "id": "f660fead-4107-43d0-8bd7-850e4508f09a"
+        },
+        {
+            "parameters": {
+                "jsCode": "// Return conflict error to AI\nconst bookingData = $('Prepare Booking Data').first().json;\nconst conflicts = $input.all();\n\nconst conflictDetails = conflicts.map(c => {\n  const booking = c.json;\n  return `- ${booking.name || 'Busy'} at ${new Date(booking.booked_at).toLocaleString()}`;\n}).join('\\n');\n\nconst errorMessage = `❌ Sorry, that time slot is not available. There are conflicts:\\n\\n${conflictDetails}\\n\\nPlease choose a different time.`;\n\nreturn [{\n  json: {\n    success: false,\n    message: errorMessage,\n    hasConflict: true\n  }\n}];"
+            },
+            "name": "Return Conflict Error",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -2016,
+                -528
+            ],
+            "id": "ecfa972e-5255-425a-a833-ecf9e0a45911"
+        },
+        {
+            "parameters": {
+                "calendar": {
+                    "__rl": true,
+                    "value": "primary",
+                    "mode": "list"
+                },
+                "start": "={{ $json.start }}",
+                "end": "={{ $json.end }}",
+                "useDefaultReminders": false,
+                "additionalFields": {
+                    "description": "={{ $json.meetingDescription }}",
+                    "guestsCanModify": true,
+                    "maxAttendees": 10,
+                    "sendUpdates": "all"
+                },
+                "remindersUi": {
+                    "remindersValues": [
+                        {
+                            "method": "email",
+                            "minutes": 60
+                        }
+                    ]
+                }
+            },
+            "name": "Create Google Calendar Event",
+            "type": "n8n-nodes-base.googleCalendar",
+            "typeVersion": 1.2,
+            "position": [
+                -2016,
+                -768
+            ],
+            "id": "06b11e59-768f-4fd5-945a-647acd0e5231",
+            "credentials": {
+                "googleCalendarOAuth2Api": {
+                    "id": "JUdbgINgmrro3N5j",
+                    "name": "Google Calendar account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Prepare confirmation email\nconst bookingData = $('Has Conflicts?').item.json;\nconst calendarEvent = $('Create Google Calendar Event').item.json;\n\nconst eventId = calendarEvent.id;\nconst eventUrl = calendarEvent.htmlLink;\nconst meetingUrl = calendarEvent.hangoutLink || calendarEvent.conferenceData?.entryPoints?.[0]?.uri;\n\nlet emailBody = `Hi ${bookingData.name},\\n\\nThank you for booking a meeting with us!\\n\\n📅 Date & Time: ${bookingData.formattedDate}\\n⏱ Duration: ${bookingData.durationMinutes} minutes\\n🌍 Timezone: ${bookingData.timezone}\\n\\n`;\n\nif (meetingUrl) {\n  emailBody += `🎥 Google Meet Link: ${meetingUrl}\\n\\n`;\n}\n\nemailBody += `📋 View in Calendar: ${eventUrl}\\n\\n`;\nemailBody += `📝 To reschedule or cancel, simply reply to this email or contact us.\\n\\n`;\nemailBody += `You'll receive a reminder 24 hours before the meeting.\\n\\n`;\nemailBody += `We're looking forward to speaking with you!\\n\\nBest regards,\\nThe Atliso Team\\nhttps://atliso.com`;\n\nreturn [{\n  json: {\n    toEmail: bookingData.email,\n    subject: 'Your Appointment is Confirmed! 🎉',\n    emailBody: emailBody,\n    meetingUrl: meetingUrl,\n    bookingUrl: eventUrl,\n    eventId: eventId,\n    formattedDate: bookingData.formattedDate,\n    email: bookingData.email,\n    startTime: bookingData.start\n  }\n}];"
+            },
+            "name": "Prepare User Email",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -1792,
+                -848
+            ],
+            "id": "a2883b6e-1449-48e5-be0d-5aad8f429127"
+        },
+        {
+            "parameters": {
+                "fromEmail": "waynekuvi@gmail.com",
+                "toEmail": "={{ $json.toEmail }}",
+                "subject": "={{ $json.subject }}",
+                "text": "={{ $json.emailBody }}",
+                "options": {}
+            },
+            "name": "Send Confirmation Email",
+            "type": "n8n-nodes-base.emailSend",
+            "typeVersion": 2,
+            "position": [
+                -1584,
+                -928
+            ],
+            "id": "8508d401-e816-4027-afe0-bfe8ec4b7831",
+            "webhookId": "3256320d-fb35-4855-9817-cb3c78fe45d3",
+            "credentials": {
+                "smtp": {
+                    "id": "IIzLfZtfHmk5zeTf",
+                    "name": "SMTP account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Prepare internal notification\nconst bookingData = $('Has Conflicts?').item.json;\nconst calendarEvent = $('Create Google Calendar Event').item.json;\n\nconst subject = `New Booking: ${bookingData.name} - ${bookingData.formattedDate}`;\nconst emailBody = `New appointment booked!\\n\\nName: ${bookingData.name}\\nEmail: ${bookingData.email}\\nPhone: ${bookingData.phone || 'Not provided'}\\nTime: ${bookingData.formattedDate}\\nTimezone: ${bookingData.timezone}\\nNotes: ${bookingData.notes || 'None'}\\n\\nEvent ID: ${calendarEvent.id}\\nMeet Link: ${calendarEvent.hangoutLink || 'N/A'}\\n\\nCheck Google Calendar for details.`;\n\nreturn [{ json: { subject, emailBody } }];"
+            },
+            "name": "Prepare Internal Email",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -1792,
+                -688
+            ],
+            "id": "875d656d-0c3d-4e8e-b065-1311a4bc40af"
+        },
+        {
+            "parameters": {
+                "fromEmail": "waynekuvi@gmail.com",
+                "toEmail": "waynekuvi@gmail.com",
+                "subject": "={{ $json.subject }}",
+                "text": "={{ $json.emailBody }}",
+                "options": {}
+            },
+            "name": "Send Internal Email",
+            "type": "n8n-nodes-base.emailSend",
+            "typeVersion": 2,
+            "position": [
+                -1584,
+                -688
+            ],
+            "id": "3a01fb56-359e-4955-b288-f24713ff3dd8",
+            "webhookId": "eb2588e2-c27d-4f17-860c-8fd3da3531de",
+            "credentials": {
+                "smtp": {
+                    "id": "IIzLfZtfHmk5zeTf",
+                    "name": "SMTP account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Return success to AI\nconst allData = $input.all();\nconst emailData = allData.find(item => item.json.bookingUrl)?.json || allData[0]?.json || {};\n\nconst bookingUrl = emailData.bookingUrl || '';\nconst meetingUrl = emailData.meetingUrl || '';\nconst toEmail = emailData.email || 'your email';\nconst formattedDate = emailData.formattedDate || 'your scheduled time';\n\nlet successMessage = `✅ Meeting booked successfully!\\n\\n📅 ${formattedDate}\\n📧 Confirmation sent to ${toEmail}\\n\\n`;\n\nif (meetingUrl) {\n  successMessage += `🎥 Google Meet: ${meetingUrl}\\n\\n`;\n}\n\nif (bookingUrl) {\n  successMessage += `📋 Calendar: ${bookingUrl}\\n\\n`;\n}\n\nsuccessMessage += `You'll receive a reminder 24 hours before the meeting. See you then!`;\n\nreturn [{\n  json: {\n    success: true,\n    message: successMessage,\n    bookingUrl,\n    meetingUrl\n  }\n}];"
+            },
+            "name": "Return Success to AI",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -1360,
+                -816
+            ],
+            "id": "1ac67c53-5389-4ca9-a5dd-60c71f1b6bab"
+        },
+        {
+            "parameters": {
+                "jsCode": "// Prepare lead update\nconst bookingData = $('Has Conflicts?').item.json;\nconst calendarEvent = $('Create Google Calendar Event').item.json;\n\nconst sessionId = bookingData.session_id;\nif (!sessionId) {\n  return [{ json: { error: 'No session_id', skip_update: true } }];\n}\n\nconst eventUrl = calendarEvent.htmlLink;\nconst meetingUrl = calendarEvent.hangoutLink || calendarEvent.conferenceData?.entryPoints?.[0]?.uri;\n\nreturn [{\n  json: {\n    session_id: sessionId,\n    is_booked: true,\n    booking_url: eventUrl || null,\n    meeting_url: meetingUrl || null,\n    booked_at: new Date().toISOString(),\n    status: 'BOOKED',\n    google_event_id: calendarEvent.id\n  }\n}];"
+            },
+            "name": "Prepare Lead Update",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -1136,
+                -816
+            ],
+            "id": "979ffe6d-5815-4916-b7f2-5afbe2546c54"
+        },
+        {
+            "parameters": {
+                "operation": "update",
+                "schema": {
+                    "__rl": true,
+                    "value": "public",
+                    "mode": "list"
+                },
+                "table": {
+                    "__rl": true,
+                    "value": "leads",
+                    "mode": "list"
+                },
+                "columns": {
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [
+                        "session_id"
+                    ],
+                    "value": {
+                        "is_booked": "={{ $json.is_booked }}",
+                        "booking_url": "={{ $json.booking_url }}",
+                        "meeting_url": "={{ $json.meeting_url }}",
+                        "booked_at": "={{ $json.booked_at }}",
+                        "status": "={{ $json.status }}"
+                    }
+                },
+                "options": {}
+            },
+            "name": "Update Lead as Booked",
+            "type": "n8n-nodes-base.postgres",
+            "typeVersion": 2.6,
+            "position": [
+                -912,
+                -816
+            ],
+            "id": "633b1ffa-c55a-446e-b2c4-30f713ea1a00",
+            "credentials": {
+                "postgres": {
+                    "id": "nfaRubeW0DdoPBU4",
+                    "name": "Postgres account"
+                }
+            }
+        }
+    ],
+    "connections": {
+        "When Executed by Another Workflow": {
+            "main": [
+                [
+                    {
+                        "node": "Extract Booking Info",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Extract Booking Info": {
+            "main": [
+                [
+                    {
+                        "node": "Prepare Booking Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Prepare Booking Data": {
+            "main": [
+                [
+                    {
+                        "node": "Check Calendar Conflicts",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Check Calendar Conflicts": {
+            "main": [
+                [
+                    {
+                        "node": "Filter Conflicting Events",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Filter Conflicting Events": {
+            "main": [
+                [
+                    {
+                        "node": "Has Conflicts?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Has Conflicts?": {
+            "main": [
+                [
+                    {
+                        "node": "Create Google Calendar Event",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Return Conflict Error",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Create Google Calendar Event": {
+            "main": [
+                [
+                    {
+                        "node": "Prepare User Email",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Prepare Internal Email",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Prepare User Email": {
+            "main": [
+                [
+                    {
+                        "node": "Send Confirmation Email",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Return Success to AI",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Send Confirmation Email": {
+            "main": [
+                [
+                    {
+                        "node": "Return Success to AI",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Prepare Internal Email": {
+            "main": [
+                [
+                    {
+                        "node": "Send Internal Email",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Send Internal Email": {
+            "main": [
+                [
+                    {
+                        "node": "Return Success to AI",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Return Success to AI": {
+            "main": [
+                [
+                    {
+                        "node": "Prepare Lead Update",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Prepare Lead Update": {
+            "main": [
+                [
+                    {
+                        "node": "Update Lead as Booked",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {},
+    "meta": {
+        "templateCredsSetupCompleted": true,
+        "instanceId": "57095b7ebf9f0cc912de39ec13377b138a89a4a1aca34e89a8a4f9bb3ff774e3"
+    }
+}

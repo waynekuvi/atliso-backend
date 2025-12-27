@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atliso Chat Widget - Production Demo</title>
+  <link rel="stylesheet" href="/atliso-chat-widget.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 900px;
+      width: 100%;
+      background: white;
+      border-radius: 24px;
+      padding: 60px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    
+    h1 {
+      font-size: 48px;
+      font-weight: 800;
+      color: #1a1a1a;
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+    
+    .subtitle {
+      font-size: 20px;
+      color: #666;
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+    
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+    
+    .feature {
+      padding: 24px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      border: 2px solid #e9ecef;
+    }
+    
+    .feature h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+    }
+    
+    .feature p {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.5;
+    }
+    
+    .cta {
+      padding: 20px 24px;
+      background: #667eea;
+      color: white;
+      border-radius: 12px;
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    
+    .cta h2 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    
+    .cta p {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+    
+    .config-info {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 32px;
+    }
+    
+    .config-info h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #856404;
+      margin-bottom: 12px;
+    }
+    
+    .config-info p {
+      font-size: 14px;
+      color: #856404;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+    
+    .config-info code {
+      background: #fff;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 13px;
+    }
+    
+    .tech-stack {
+      background: #f8f9fa;
+      padding: 24px;
+      border-radius: 12px;
+      border-left: 4px solid #667eea;
+    }
+    
+    .tech-stack h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 12px;
+    }
+    
+    .tech-stack ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    
+    .tech-stack li {
+      background: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      color: #667eea;
+      font-weight: 500;
+      border: 1px solid #e9ecef;
+    }
+    
+    .footer {
+      margin-top: 40px;
+      text-align: center;
+      color: #999;
+      font-size: 14px;
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        padding: 40px 24px;
+      }
+      
+      h1 {
+        font-size: 36px;
+      }
+      
+      .subtitle {
+        font-size: 18px;
+      }
+      
+      .features {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚀 Welcome to Our Platform</h1>
+    <p class="subtitle">
+      Experience seamless customer support with our AI-powered chat widget. 
+      This is a production demo showcasing real-time customization and integration.
+    </p>
+    
+    <div class="cta">
+      <h2>Try the Widget!</h2>
+      <p>Click the chat button in the bottom-right corner to get started</p>
+    </div>
+    
+    <div class="config-info">
+      <h3>🔧 Configuration Instructions</h3>
+      <p><strong>After deploying to Vercel:</strong></p>
+      <p>1. Update the <code>data-api-url</code> below to point to your dashboard API</p>
+      <p>2. Replace <code>YOUR_DASHBOARD_URL</code> with your actual dashboard domain</p>
+      <p>3. The widget will automatically fetch configuration from your dashboard</p>
+    </div>
+    
+    <div class="features">
+      <div class="feature">
+        <h3>⚡ Real-time Updates</h3>
+        <p>Widget configuration updates instantly from your dashboard without redeployment.</p>
+      </div>
+      
+      <div class="feature">
+        <h3>🎨 Fully Customizable</h3>
+        <p>Change colors, logos, messages, and branding to match your company identity.</p>
+      </div>
+      
+      <div class="feature">
+        <h3>🔒 Secure & CORS Ready</h3>
+        <p>Built with security in mind, ready to embed on any domain with proper headers.</p>
+      </div>
+      
+      <div class="feature">
+        <h3>📱 Responsive Design</h3>
+        <p>Works beautifully on desktop, tablet, and mobile devices.</p>
+      </div>
+    </div>
+    
+    <div class="tech-stack">
+      <h3>Built With Modern Technology</h3>
+      <ul>
+        <li>React 19</li>
+        <li>TypeScript</li>
+        <li>Tailwind CSS</li>
+        <li>Vite</li>
+        <li>Zustand</li>
+      </ul>
+    </div>
+    
+    <div class="footer">
+      <p>Powered by Atliso Chat Widget v1.0.0</p>
+    </div>
+  </div>
+
+  <!-- Atliso Chat Widget -->
+  <script
+    src="/atliso-chat-widget.umd.js"
+    data-org-id="cmiryx9510001wx0bzs3wo78b"
+    data-api-url="http://localhost:3000"
+    async>
+  </script>
+</body>
+</html>
