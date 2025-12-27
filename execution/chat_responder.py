@@ -9,7 +9,7 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime
 from openai import AsyncOpenAI
 
-from db_helper import DatabaseHelper
+from .db_helper import DatabaseHelper
 from webhook_service import WebhookService
 
 

@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 # Load env vars
 load_dotenv()
 
-from db_helper import DatabaseHelper
+from .db_helper import DatabaseHelper
 
 async def migrate():
     print("Starting schema migration for Lead Recovery...")

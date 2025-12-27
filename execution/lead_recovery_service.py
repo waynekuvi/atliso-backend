@@ -3,7 +3,7 @@ import asyncio
 import os
 from datetime import datetime
 from typing import Dict
-from db_helper import DatabaseHelper
+from .db_helper import DatabaseHelper
 from email_service import EmailService
 
 class LeadRecoveryService:

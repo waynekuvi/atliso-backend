@@ -11,7 +11,7 @@ from io import BytesIO
 import httpx
 from openai import AsyncOpenAI
 
-from db_helper import DatabaseHelper
+from .db_helper import DatabaseHelper
 
 
 class KnowledgeBaseHandler:

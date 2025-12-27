@@ -18,7 +18,7 @@ import asyncio
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 
-from db_helper import DatabaseHelper
+from .db_helper import DatabaseHelper
 from chat_responder import ChatResponder
 from lead_capture import LeadCapture
 

@@ -146,7 +146,7 @@ async def discord_webhook(request: Request):
     Incoming webhook for Discord Bot events
     Handles human replies from threads
     """
-    from db_helper import DatabaseHelper
+    from .db_helper import DatabaseHelper
     db = DatabaseHelper()
     
     try:
@@ -205,7 +205,7 @@ async def discord_webhook(request: Request):
 @app.get("/api/v1/sessions/{session_id}/status")
 async def get_session_status(session_id: str):
     """Get handoff status for a specific session"""
-    from db_helper import DatabaseHelper
+    from .db_helper import DatabaseHelper
     db = DatabaseHelper()
     try:
         handoff_status = await db.get_handoff_status(session_id)
@@ -221,7 +221,7 @@ async def get_session_status(session_id: str):
 @app.get("/api/v1/sessions/{session_id}/history")
 async def get_session_history(session_id: str):
     """Get chat history for a specific session"""
-    from db_helper import DatabaseHelper
+    from .db_helper import DatabaseHelper
     db = DatabaseHelper()
     try:
         return await db.get_chat_history(session_id)
@@ -233,7 +233,7 @@ async def get_session_history(session_id: str):
 @app.post("/api/v1/sessions/{session_id}/reset")
 async def reset_session(session_id: str):
     """Reset session handoff state to normal AI mode"""
-    from db_helper import DatabaseHelper
+    from .db_helper import DatabaseHelper
     db = DatabaseHelper()
     try:
         print(f"[ResetSession] Resetting session {session_id} to AI mode")
@@ -303,7 +303,7 @@ async def embed_pdf_endpoint(request: Request):
 @app.get("/api/v1/analytics/summary")
 async def get_analytics_summary(org_id: str):
     """Get high-level analytics summary for an organization"""
-    from db_helper import DatabaseHelper
+    from .db_helper import DatabaseHelper
     db = DatabaseHelper()
     try:
         return await db.get_analytics_summary(org_id=org_id)
@@ -315,7 +315,7 @@ async def get_analytics_summary(org_id: str):
 @app.get("/api/v1/analytics/daily")
 async def get_daily_stats(org_id: str, days: int = 30):
     """Get daily lead and booking stats for an organization"""
-    from db_helper import DatabaseHelper
+    from .db_helper import DatabaseHelper
     db = DatabaseHelper()
     try:
         return await db.get_daily_stats(org_id=org_id, days=days)
@@ -327,7 +327,7 @@ async def get_daily_stats(org_id: str, days: int = 30):
 @app.get("/api/v1/analytics/leads")
 async def get_top_leads(org_id: str, limit: int = 20):
     """Get recent leads for an organization"""
-    from db_helper import DatabaseHelper
+    from .db_helper import DatabaseHelper
     db = DatabaseHelper()
     try:
         return await db.get_top_leads(org_id=org_id, limit=limit)
@@ -339,7 +339,7 @@ async def get_top_leads(org_id: str, limit: int = 20):
 @app.get("/api/v1/analytics/handoffs")
 async def get_handoff_metrics(org_id: str):
     """Get human handoff performance metrics for an organization"""
-    from db_helper import DatabaseHelper
+    from .db_helper import DatabaseHelper
     db = DatabaseHelper()
     try:
         return await db.get_handoff_metrics(org_id=org_id)
@@ -351,7 +351,7 @@ async def get_handoff_metrics(org_id: str):
 @app.get("/api/v1/analytics/conversion")
 async def get_conversion_metrics(org_id: str):
     """Get conversion rate metrics for an organization"""
-    from db_helper import DatabaseHelper
+    from .db_helper import DatabaseHelper
     db = DatabaseHelper()
     try:
         return await db.get_conversion_metrics(org_id=org_id)

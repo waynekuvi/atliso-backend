@@ -9,7 +9,7 @@ import re
 from typing import Dict, Optional
 from openai import AsyncOpenAI
 
-from db_helper import DatabaseHelper
+from .db_helper import DatabaseHelper
 
 
 class LeadCapture:

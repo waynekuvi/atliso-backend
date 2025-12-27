@@ -7,7 +7,7 @@ from pathlib import Path
 # Add the directory containing db_helper to path
 sys.path.append(str(Path(__file__).parent))
 
-from db_helper import DatabaseHelper
+from .db_helper import DatabaseHelper
 from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).parent.parent / ".env")

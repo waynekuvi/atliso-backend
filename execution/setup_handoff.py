@@ -7,7 +7,7 @@ from pathlib import Path
 # Add execution directory to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from db_helper import DatabaseHelper
+from .db_helper import DatabaseHelper
 from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).parent.parent / ".env")
