@@ -29,7 +29,8 @@ class DatabaseHelper:
             DatabaseHelper._pool = await asyncpg.create_pool(
                 self.database_url,
                 min_size=2,
-                max_size=20
+                max_size=20,
+                ssl='require'  # Required for Supabase on Render
             )
         return DatabaseHelper._pool
     
