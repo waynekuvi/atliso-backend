@@ -64,7 +64,8 @@ class DatabaseHelper:
                         max_size=10,
                         ssl=ssl_context,
                         command_timeout=60,
-                        timeout=60
+                        timeout=60,
+                        statement_cache_size=0  # Required for Supabase pgbouncer
                     )
                     print("✅ Database pool connected successfully!")
                     break
