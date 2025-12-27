@@ -266,9 +266,16 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const { threads, activeThreadId } = get();
     if (!activeThreadId) return;
 
-    const updatedThreads = threads.map(t =>
-      t.id === activeThreadId ? { ...t, handoff_status: status } : t
-    );
+    const updatedThreads = threads.map(t => {
+      if (t.id !== activeThreadId) return t;
+
+      const isEnded = status === 'ended' || status === 'none_archived';
+      return {
+        ...t,
+        handoff_status: status,
+        ended: isEnded ? true : t.ended
+      };
+    });
     set({ threads: updatedThreads });
     saveThreads(updatedThreads);
 
@@ -372,9 +379,15 @@ export const useChatStore = create<ChatState>((set, get) => ({
         const backendStatus = statusData.handoff_status || 'none';
         const thread = threads.find(t => t.id === activeThreadId);
         console.log(`[ChatStore] syncHistory: Backend status = ${backendStatus}, Local = ${thread?.handoff_status}`);
-        if (thread && thread.handoff_status !== backendStatus) {
-          console.log(`[ChatStore] Polling: status changed ${thread.handoff_status} -> ${backendStatus}`);
-          get().setHandoffStatus(backendStatus);
+        if (thread) {
+          // If backend says 'none_archived' (ended) and we aren't yet ended, trigger update
+          if (backendStatus === 'none_archived' && thread.handoff_status !== 'none_archived' && !thread.ended) {
+            console.log(`[ChatStore] Conversation ended remotely. Triggering feedback.`);
+            get().setHandoffStatus('none_archived');
+          } else if (backendStatus !== 'none_archived' && thread.handoff_status !== backendStatus) {
+            console.log(`[ChatStore] Polling: status changed ${thread.handoff_status} -> ${backendStatus}`);
+            get().setHandoffStatus(backendStatus);
+          }
         }
       } else {
         console.warn(`[ChatStore] syncHistory: Status fetch failed with ${statusResponse.status}`);
