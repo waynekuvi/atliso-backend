@@ -33,15 +33,73 @@ from .lead_recovery_service import LeadRecoveryService
 
 # Global services
 services = {}
+discord_task = None
+
+async def run_discord_listener():
+    """Run Discord listener in background"""
+    import discord
+    import aiohttp
+    
+    TOKEN = os.getenv("DISCORD_BOT_TOKEN")
+    API_URL = "https://atliso-backend.onrender.com/webhook/discord"
+    
+    if not TOKEN:
+        print("⚠️ DISCORD_BOT_TOKEN not set, skipping Discord listener")
+        return
+    
+    intents = discord.Intents.default()
+    intents.message_content = True
+    
+    class DiscordListener(discord.Client):
+        async def on_ready(self):
+            print(f"✅ Discord Bot logged in as {self.user}")
+            print("🎧 Listening for agent replies in threads...")
+
+        async def on_message(self, message):
+            if message.author == self.user:
+                return
+
+            if isinstance(message.channel, discord.Thread):
+                thread_id = str(message.channel.id)
+                content = message.content
+                author = str(message.author)
+                
+                print(f"📩 Agent reply in thread {thread_id}: {content}")
+                
+                async with aiohttp.ClientSession() as session:
+                    payload = {
+                        "thread_id": thread_id,
+                        "content": content,
+                        "author": author,
+                        "type": "message"
+                    }
+                    try:
+                        async with session.post(API_URL, json=payload) as resp:
+                            if resp.status == 200:
+                                print(f"🔗 Synced to chat widget")
+                    except Exception as e:
+                        print(f"❌ Discord sync error: {e}")
+    
+    client = DiscordListener(intents=intents)
+    try:
+        await client.start(TOKEN)
+    except Exception as e:
+        print(f"❌ Discord listener error: {e}")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan events - startup and shutdown"""
+    global discord_task
+    
     # Startup
     print("🚀 Starting background services...")
     recovery_service = LeadRecoveryService()
     await recovery_service.start()
     services["recovery"] = recovery_service
+    
+    # Start Discord listener in background
+    import asyncio
+    discord_task = asyncio.create_task(run_discord_listener())
     
     yield
     
@@ -49,6 +107,9 @@ async def lifespan(app: FastAPI):
     print("🛑 Stopping background services...")
     if services.get("recovery"):
         await services["recovery"].stop()
+    if discord_task:
+        discord_task.cancel()
+
 
 app = FastAPI(
     title="Atliso Chatbot API",
