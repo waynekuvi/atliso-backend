@@ -253,7 +253,11 @@ async def discord_webhook(request: Request):
             
             if is_end_cmd:
                 print(f"[DiscordWebhook] Agent ended conversation for session {session_id}")
+                farewell = "Thank you for chatting with us! The human agent has ended this conversation. Have a great day!"
                 await db.save_chat_message(session_id, "assistant", farewell)
+                
+                # Reset handoff status to 'none' so the user could potentially chat with AI again or start fresh
+                await db.set_handoff_status(session_id, "none_archived")
                 
                 # Notify Rovodev
                 ws = WebhookService()

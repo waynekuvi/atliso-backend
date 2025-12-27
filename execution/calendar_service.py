@@ -20,6 +20,50 @@ class CalendarService:
     def __init__(self):
         self.calendar_id = os.getenv("GOOGLE_CALENDAR_ID", "primary")
         self._service = None
+        
+    def _authenticate(self):
+        """Authenticate with Google Calendar API"""
+        SCOPES = ['https://www.googleapis.com/auth/calendar']
+        creds = None
+        
+        # 1. Try Base64 encoded JSON from env var (Render friendly)
+        encoded_creds = os.getenv("GOOGLE_CREDENTIALS_BASE64")
+        if encoded_creds:
+            import base64
+            try:
+                decoded_json = base64.b64decode(encoded_creds).decode('utf-8')
+                creds_info = json.loads(decoded_json)
+                creds = service_account.Credentials.from_service_account_info(creds_info, scopes=SCOPES)
+                print("✅ Authenticated via GOOGLE_CREDENTIALS_BASE64")
+            except Exception as e:
+                print(f"⚠️ Failed to load base64 credentials: {e}")
+
+        # 2. Try JSON string from env var
+        if not creds:
+            json_creds = os.getenv("GOOGLE_CREDENTIALS_JSON")
+            if json_creds:
+                 try:
+                    creds_info = json.loads(json_creds)
+                    creds = service_account.Credentials.from_service_account_info(creds_info, scopes=SCOPES)
+                    print("✅ Authenticated via GOOGLE_CREDENTIALS_JSON")
+                 except Exception as e:
+                    print(f"⚠️ Failed to load json string credentials: {e}")
+
+        # 3. Try File path
+        if not creds:
+            service_account_file = os.getenv("GOOGLE_SERVICE_ACCOUNT_FILE", "execution/google_service_account.json")
+            if os.path.exists(service_account_file):
+                creds = service_account.Credentials.from_service_account_file(
+                    service_account_file, scopes=SCOPES
+                )
+                print(f"✅ Authenticated via file: {service_account_file}")
+            else:
+                print(f"⚠️ Service account file not found at: {service_account_file}")
+        
+        if creds:
+            self._service = build('calendar', 'v3', credentials=creds)
+        else:
+             print("❌ No valid Google Calendar credentials found.")
     
     def _get_service(self):
         """Get or create Calendar API service"""

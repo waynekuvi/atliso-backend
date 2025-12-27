@@ -202,7 +202,7 @@ The Atliso Team"""
             event_id=event_id,
             action="rescheduled",
             old_datetime=lead.get("booked_at"),
-            new_datetime=new_start,  # Pass datetime object, not string
+            new_datetime=new_start.isoformat(),
             changed_by="user",
             notes=reason
         )
