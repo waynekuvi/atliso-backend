@@ -93,6 +93,17 @@ async def lifespan(app: FastAPI):
     
     # Startup
     print("🚀 Starting background services...")
+    
+    # Initialize database connection pool FIRST (with retry logic)
+    from .db_helper import DatabaseHelper
+    try:
+        db = DatabaseHelper()
+        await db._get_pool()  # This has retry logic built in
+        print("✅ Database ready!")
+    except Exception as e:
+        print(f"⚠️ Database initialization failed: {e}")
+        print("⚠️ Server will continue but database calls may fail")
+    
     recovery_service = LeadRecoveryService()
     await recovery_service.start()
     services["recovery"] = recovery_service

@@ -23,15 +23,61 @@ class DatabaseHelper:
         self.database_url = os.getenv("DATABASE_URL")
     
     async def _get_pool(self):
-        """Get or create singleton connection pool"""
+        """Get or create singleton connection pool with retry logic"""
         if DatabaseHelper._pool is None:
-            print("💎 Initializing Global Database Pool...")
-            DatabaseHelper._pool = await asyncpg.create_pool(
-                self.database_url,
-                min_size=2,
-                max_size=20,
-                ssl='require'  # Required for Supabase on Render
-            )
+            import ssl
+            import asyncio
+            import re
+            
+            db_url = self.database_url
+            print(f"💎 Initializing Global Database Pool...")
+            
+            # Auto-convert Supabase direct URL (5432) to pooler URL (6543)
+            # Direct: postgresql://postgres:PASS@db.PROJECT.supabase.co:5432/postgres
+            # Pooler: postgresql://postgres.PROJECT:PASS@aws-0-us-west-1.pooler.supabase.com:6543/postgres
+            if db_url and 'supabase.co:5432' in db_url:
+                match = re.match(r'postgresql://postgres:([^@]+)@db\.([^.]+)\.supabase\.co:5432/postgres', db_url)
+                if match:
+                    password = match.group(1)
+                    project_ref = match.group(2)
+                    # Try US West 1 pooler (most common)
+                    db_url = f"postgresql://postgres.{project_ref}:{password}@aws-0-us-west-1.pooler.supabase.com:6543/postgres"
+                    print(f"🔄 Converted to Supabase Connection Pooler URL")
+            
+            print(f"📡 Connecting to: {db_url[:50]}...")
+            
+            # Create proper SSL context for Supabase
+            ssl_context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
+            ssl_context.check_hostname = False
+            ssl_context.verify_mode = ssl.CERT_NONE
+            
+            # Retry logic for cloud environments (Render cold starts)
+            max_retries = 3
+            retry_delay = 3
+            last_error = None
+            
+            for attempt in range(max_retries):
+                try:
+                    DatabaseHelper._pool = await asyncpg.create_pool(
+                        db_url,
+                        min_size=1,
+                        max_size=10,
+                        ssl=ssl_context,
+                        command_timeout=60,
+                        timeout=60
+                    )
+                    print("✅ Database pool connected successfully!")
+                    break
+                except Exception as e:
+                    last_error = e
+                    print(f"⚠️ DB connection attempt {attempt + 1}/{max_retries} failed: {type(e).__name__}: {e}")
+                    if attempt < max_retries - 1:
+                        await asyncio.sleep(retry_delay)
+            
+            if DatabaseHelper._pool is None and last_error:
+                print(f"❌ All database connection attempts failed: {last_error}")
+                raise last_error
+                
         return DatabaseHelper._pool
     
     @asynccontextmanager

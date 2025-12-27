@@ -115,7 +115,9 @@ class WorkflowRouter:
             return response
             
         except Exception as e:
+            import traceback
             print(f"[WorkflowRouter] Error: {e}")
+            print(f"[WorkflowRouter] Traceback: {traceback.format_exc()}")
             return {
                 "reply": "I'm sorry, I encountered an issue processing your request. Please try again.",
                 "endConversation": False
