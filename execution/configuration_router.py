@@ -113,10 +113,29 @@ async def get_config(org_id: str):
         # Fetch it back to return full structure
         config = await db.get_bot_config(org_id)
     
-    if config and isinstance(config.get('widget_settings'), str):
-        config['widget_settings'] = json.loads(config['widget_settings'])
-        
-    return config
+    # Process widget_settings
+    widget_settings = config.get('widget_settings', {})
+    if isinstance(widget_settings, str):
+        widget_settings = json.loads(widget_settings)
+    
+    # Flatten the response for the widget
+    # The widget expects these fields at the top level
+    response = {
+        **config,
+        "botName": config.get('bot_name'),
+        "welcomeMessage": config.get('welcome_message'),
+        "primaryColor": widget_settings.get('primaryColor', '#000000'),
+        "logoUrl": widget_settings.get('logo'),
+        "supportLogoUrl": widget_settings.get('supportLogo'),
+        "avatarUrl": widget_settings.get('avatars')[0] if widget_settings.get('avatars') else None,
+        "launcherText": widget_settings.get('launcherText', 'Chat with us'),
+        "position": widget_settings.get('position', 'bottom-right'),
+    }
+    
+    # Remove raw db fields that aren't needed in flattened response
+    response.pop('widget_settings', None)
+    
+    return response
 
 @router.patch("/{org_id}")
 async def update_config(org_id: str, config: BotConfigUpdate, _ = Depends(verify_secret)):
