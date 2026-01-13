@@ -189,16 +189,18 @@ class DatabaseHelper:
         async with self.connection() as conn:
             await conn.execute(
                 """
-                INSERT INTO knowledge_docs (id, org_id, filename, file_size, status, chunk_count, updated_at)
-                VALUES ($1, $2, $3, $4, $5, $6, NOW())
+                INSERT INTO knowledge_docs (id, org_id, filename, file_path, file_size, status, chunk_count, updated_at)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
                 ON CONFLICT (id) DO UPDATE SET
                     status = EXCLUDED.status,
+                    file_path = COALESCE(EXCLUDED.file_path, knowledge_docs.file_path),
                     chunk_count = COALESCE(EXCLUDED.chunk_count, knowledge_docs.chunk_count),
                     updated_at = NOW()
                 """,
                 doc_data['id'],
                 doc_data['org_id'],
                 doc_data['filename'],
+                doc_data.get('file_path', f"internal://{doc_data['org_id']}/{doc_data['filename']}"),
                 doc_data.get('file_size', 0),
                 doc_data.get('status', 'pending'),
                 doc_data.get('chunk_count', 0)
