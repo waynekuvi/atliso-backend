@@ -41,7 +41,7 @@ export function DropdownMenu({ isOpen, onClose, onDownloadTranscript, onExpandVi
 
   return (
     <div
-    style={{ padding: '8px' }}
+      style={{ padding: '8px' }}
       ref={dropdownRef}
       className="absolute right-2 top-14 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50 min-w-[180px]"
     >
@@ -104,7 +104,7 @@ export function ChatHeaderDropdown({ onDownloadTranscript, onExpandView, isExpan
       >
         <MoreHorizontal className="w-5 h-5" />
       </button>
-      
+
       <DropdownMenu
         isOpen={isDropdownOpen}
         onClose={closeDropdown}

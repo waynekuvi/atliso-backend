@@ -29,7 +29,7 @@ export function MessageItem({ message }: MessageItemProps) {
             width: 'fit-content'
           }}
           className={cn(
-            'px-4 py-3 text-[15px] leading-relaxed transition-all duration-200 overflow-hidden',
+            'px-4 py-3 text-[15px] leading-relaxed transition-all duration-200 overflow-hidden overflow-x-auto max-h-[500px] overflow-y-auto custom-scrollbar',
             isUser
               ? 'bg-black text-white rounded-[20px] shadow-md hover:shadow-lg'
               : 'bg-gray-50 text-gray-800 border border-gray-200 rounded-[20px] shadow-sm hover:shadow-md hover:border-gray-300'
