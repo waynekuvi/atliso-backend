@@ -544,7 +544,8 @@ class DatabaseHelper:
                     
                     result.append({
                         'role': role,
-                        'content': msg.get('content', str(msg))
+                        'content': msg.get('content', str(msg)),
+                        'timestamp': msg.get('timestamp', '') # Return timestamp if present
                     })
                 elif isinstance(msg, str):
                     # Try to parse JSON string if possible
@@ -553,11 +554,15 @@ class DatabaseHelper:
                         if isinstance(parsed, dict):
                             role = parsed.get('type', 'user')
                             if role == 'bot': role = 'assistant'
-                            result.append({'role': role, 'content': parsed.get('content', str(parsed))})
+                            result.append({
+                                'role': role, 
+                                'content': parsed.get('content', str(parsed)),
+                                'timestamp': parsed.get('timestamp', '') # Return timestamp if present
+                            })
                             continue
                     except:
                         pass
-                    result.append({'role': 'user', 'content': msg})
+                    result.append({'role': 'user', 'content': msg, 'timestamp': ''})
             return result
     
     async def save_chat_message(
@@ -570,7 +575,13 @@ class DatabaseHelper:
         import json
         async with self.connection() as conn:
             # Store as JSON object matching n8n format
-            message = json.dumps({'type': role, 'content': content})
+            # Added timestamp for frontend display
+            message_data = {
+                'type': role, 
+                'content': content, 
+                'timestamp': datetime.now().isoformat()
+            }
+            message = json.dumps(message_data)
             await conn.execute(
                 """
                 INSERT INTO n8n_chat_histories (session_id, message)
