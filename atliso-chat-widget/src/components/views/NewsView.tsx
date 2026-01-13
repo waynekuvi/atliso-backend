@@ -99,7 +99,7 @@ export function NewsView() {
           flexDirection: 'column',
           gap: '10px',
         }}
-        className="flex-1 overflow-y-auto bg-gray-50"
+        className="flex-1 overflow-y-auto atliso-scrollbar bg-gray-50"
       >
         {sampleNews.map((item) => (
           <button
@@ -166,29 +166,28 @@ export function NewsView() {
             )}
 
             {/* News Content */}
-            <div style={{ padding: '0 2px' }}>
+            <div>
               <h2 style={{
-                fontSize: '13px',
-                fontWeight: 600,
+                fontSize: '15px',
+                fontWeight: 700,
                 color: '#0F172A',
-                marginBottom: '4px',
-                lineHeight: '1.4'
+                marginBottom: '8px',
+                lineHeight: '1.3'
               }}>
                 {item.title}
               </h2>
               <p style={{
-                fontSize: '11px',
+                fontSize: '13px',
                 color: '#64748B',
                 lineHeight: 1.5,
-                marginBottom: '4px'
+                marginBottom: '8px'
               }}>
                 {item.summary}
               </p>
               <p style={{
-                fontSize: '10px',
+                fontSize: '11px',
                 color: '#64748B',
-                margin: 0,
-                opacity: 0.6
+                margin: 0
               }}>
                 {formatDate(item.timestamp)}
               </p>

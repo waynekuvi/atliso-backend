@@ -64,12 +64,12 @@ export interface Customization {
   webhookUrl?: string;
   // New configurable fields from API
   botName?: string;
-  welcomeMessage?: string;
-  homepageHeading?: string;
+  homepageHeading?: string; // Home screen main heading
+  welcomeMessage?: string; // First bot message in chat
   position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
   primaryColor?: string;
-  launcherText?: string;
-  tagline?: string;
+  launcherText?: string; // Floating button text
+  tagline?: string; // Chat header tagline
   showBranding?: boolean;
 }
 

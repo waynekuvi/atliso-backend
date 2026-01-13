@@ -6,7 +6,6 @@ import type { Customization, GradientColors } from '@/types';
 export interface WidgetConfigResponse {
   botName: string;
   welcomeMessage: string;
-  homepageHeading: string;
   position: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
   primaryColor: string;
   launcherText: string;
@@ -67,7 +66,6 @@ export function mapConfigToCustomization(
     webhookUrl: config.webhookUrl || fallbackWebhookUrl,
     botName: config.botName,
     welcomeMessage: config.welcomeMessage,
-    homepageHeading: config.homepageHeading,
     position: config.position,
     primaryColor: config.primaryColor,
     launcherText: config.launcherText,

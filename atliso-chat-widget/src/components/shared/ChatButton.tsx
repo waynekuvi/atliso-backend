@@ -23,42 +23,46 @@ export function ChatButton() {
 
   // Use primary color if available, otherwise default to black
   const buttonColor = customization?.primaryColor || '#000000';
+  const launcherText = customization?.launcherText;
+  const hasText = launcherText && !isOpen;
 
   return (
     <button
       onClick={toggleOpen}
       className={cn(
-        'w-14 h-14 rounded-full border-none cursor-pointer',
-        'flex items-center justify-center',
+        'rounded-full border-none cursor-pointer',
+        'flex items-center justify-center gap-2',
         'transition-all duration-300 ease-out',
         'hover:scale-105 hover:shadow-xl active:scale-95',
         'focus:outline-none focus:ring-4 focus:ring-black/20',
         // keep button anchored within host based on position
         'shadow-lg absolute z-50',
-        getButtonPosition()
+        getButtonPosition(),
+        hasText ? 'h-14 px-5' : 'w-14 h-14'
       )}
       style={{ backgroundColor: buttonColor }}
       aria-label={isOpen ? 'Close chat' : 'Open chat'}
     >
       {isOpen ? (
-        <svg
-          viewBox="0 0 24 24"
-          width="28"
-          height="28"
-          fill="none"
-          stroke="white"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+        <span
+          className="material-symbols-outlined text-white"
+          style={{ fontSize: '28px', lineHeight: 1 }}
         >
-          <path d="m6 9 6 6 6-6" />
-        </svg>
+          expand_more
+        </span>
       ) : (
-        <img
-          src="https://res.cloudinary.com/dwjvtgiid/image/upload/v1766321945/image_42_s2rakp.png"
-          alt="Chat"
-          style={{ width: '42px', height: '42px' }}
-        />
+        <>
+          <img
+            src="https://res.cloudinary.com/dwjvtgiid/image/upload/v1766321945/image_42_s2rakp.png"
+            alt="Chat"
+            style={{ width: '32px', height: '32px' }}
+          />
+          {hasText && (
+            <span className="text-white font-semibold text-sm whitespace-nowrap">
+              {launcherText}
+            </span>
+          )}
+        </>
       )}
 
       {/* Unread Badge */}

@@ -61,10 +61,10 @@ export function ChatHeader() {
 
         {/* Title & Subtitle */}
         <div className="min-w-0">
-          <h3 className="text-[14px] font-semibold text-gray-900 truncate leading-tight">
+          <h3 className="text-[15px] font-semibold text-gray-900 truncate leading-tight">
             {customization?.botName || 'Support AI Assistant'}
           </h3>
-          <p className="text-[11px] text-gray-400 truncate mt-0.5">
+          <p className="text-xs text-gray-500 truncate">
             {customization?.tagline || 'The team can also help'}
           </p>
         </div>

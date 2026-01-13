@@ -505,12 +505,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
           const data = await res.json();
           const newCustomization: Customization = {
             botName: data.botName,
+            homepageHeading: data.homepageHeading,
             welcomeMessage: data.welcomeMessage,
             primaryColor: data.primaryColor,
             logo: data.logoUrl,
             supportLogo: data.supportLogoUrl,
             avatars: data.avatarUrl ? [data.avatarUrl] : [],
             tagline: data.tagline,
+            launcherText: data.launcherText,
             webhookUrl: get().webhookUrl
           };
 
