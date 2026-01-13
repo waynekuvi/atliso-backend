@@ -10,7 +10,7 @@ import PyPDF2
 
 from .db_helper import DatabaseHelper
 
-router = APIRouter(prefix="/api/v1/config")
+router = APIRouter()
 db = DatabaseHelper()
 client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -38,13 +38,13 @@ class BotConfigUpdate(BaseModel):
 # Knowledge Base Endpoints (Specific routes first)
 # ==========================================
 
-@router.get("/{org_id}/knowledge")
+@router.get("/api/v1/config/{org_id}/knowledge")
 async def list_knowledge(org_id: str):
     """List knowledge base documents for an organization. Returns [] if none."""
     docs = await db.get_knowledge_docs(org_id)
     return docs or []
 
-@router.delete("/{org_id}/knowledge/{doc_id}")
+@router.delete("/api/v1/config/{org_id}/knowledge/{doc_id}")
 async def delete_knowledge(org_id: str, doc_id: str, _ = Depends(verify_secret)):
     """Delete a knowledge base document"""
     success = await db.delete_knowledge_doc(doc_id, org_id)
@@ -52,7 +52,7 @@ async def delete_knowledge(org_id: str, doc_id: str, _ = Depends(verify_secret))
         raise HTTPException(status_code=500, detail="Failed to delete document")
     return {"status": "success", "doc_id": doc_id}
 
-@router.post("/{org_id}/knowledge")
+@router.post("/api/v1/config/{org_id}/knowledge")
 async def upload_knowledge(
     org_id: str, 
     background_tasks: BackgroundTasks,
@@ -89,7 +89,8 @@ async def upload_knowledge(
 # Bot Configuration Endpoints
 # ==========================================
 
-@router.get("/{org_id}")
+@router.get("/api/v1/config/{org_id}")
+@router.get("/api/widget/config/{org_id}")
 async def get_config(org_id: str):
     """Get bot configuration for an organization. Auto-creates default if missing."""
     config = await db.get_bot_config(org_id)
@@ -139,13 +140,7 @@ async def get_config(org_id: str):
     
     return response
 
-# Alias for the widget's specific expected path
-@router.get("/api/widget/config/{org_id}")
-async def get_widget_config_alias(org_id: str):
-    """Alias for get_config to match widget's internal mapping"""
-    return await get_config(org_id)
-
-@router.patch("/{org_id}")
+@router.patch("/api/v1/config/{org_id}")
 async def update_config(org_id: str, config: BotConfigUpdate, _ = Depends(verify_secret)):
     """Update bot configuration"""
     config_data = config.model_dump(exclude_unset=True)
