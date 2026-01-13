@@ -140,6 +140,24 @@ class DatabaseHelper:
                 json.dumps(config_data.get('widget_settings', {}))
             )
             return True
+
+    async def update_bot_config_widget_settings(self, org_id: str, widget_settings: Dict) -> bool:
+        """
+        Partially update widget settings (JSONB merge)
+        """
+        async with self.connection() as conn:
+            await conn.execute(
+                """
+                INSERT INTO bot_configs (org_id, widget_settings)
+                VALUES ($1, $2)
+                ON CONFLICT (org_id) DO UPDATE SET
+                    widget_settings = COALESCE(bot_configs.widget_settings, '{}'::jsonb) || $2,
+                    updated_at = NOW()
+                """,
+                org_id,
+                json.dumps(widget_settings)
+            )
+            return True
     
     async def get_bot_template(self, template_id: str) -> Optional[Dict]:
         """
@@ -166,6 +184,49 @@ class DatabaseHelper:
     # Knowledge Base / Vectors
     # ==========================================
     
+    async def upsert_knowledge_doc(self, doc_data: Dict) -> bool:
+        """Upsert a knowledge document record"""
+        async with self.connection() as conn:
+            await conn.execute(
+                """
+                INSERT INTO knowledge_docs (id, org_id, filename, file_size, status, chunk_count, updated_at)
+                VALUES ($1, $2, $3, $4, $5, $6, NOW())
+                ON CONFLICT (id) DO UPDATE SET
+                    status = EXCLUDED.status,
+                    chunk_count = COALESCE(EXCLUDED.chunk_count, knowledge_docs.chunk_count),
+                    updated_at = NOW()
+                """,
+                doc_data['id'],
+                doc_data['org_id'],
+                doc_data['filename'],
+                doc_data.get('file_size', 0),
+                doc_data.get('status', 'pending'),
+                doc_data.get('chunk_count', 0)
+            )
+            return True
+            
+    async def get_knowledge_docs(self, org_id: str) -> List[Dict]:
+        """List knowledge docs for an org"""
+        async with self.connection() as conn:
+            rows = await conn.fetch(
+                """
+                SELECT * FROM knowledge_docs WHERE org_id = $1 ORDER BY created_at DESC
+                """,
+                org_id
+            )
+            return [dict(row) for row in rows]
+
+    async def delete_knowledge_doc(self, doc_id: str, org_id: str) -> bool:
+        """
+        Delete doc record AND associated vectors
+        """
+        async with self.connection() as conn:
+            # Delete vectors first (assuming doc_id link)
+            await conn.execute("DELETE FROM knowledge_vectors WHERE doc_id = $1 AND org_id = $2", doc_id, org_id)
+            # Delete doc record
+            await conn.execute("DELETE FROM knowledge_docs WHERE id = $1 AND org_id = $2", doc_id, org_id)
+            return True
+
     async def search_knowledge_vectors(
         self,
         embedding: List[float],

@@ -1,11 +1,28 @@
-from fastapi import APIRouter, HTTPException, BackgroundTasks, UploadFile, File
-from pydantic import BaseModel
-from typing import Optional, Dict, List, Any
-from .db_helper import DatabaseHelper
+import os
+import io
 import json
+import uuid
+from typing import Optional, Dict, List, Any
+from fastapi import APIRouter, HTTPException, BackgroundTasks, UploadFile, File, Header, Depends, Security
+from pydantic import BaseModel
+from openai import AsyncOpenAI
+import PyPDF2
+
+from .db_helper import DatabaseHelper
 
 router = APIRouter()
 db = DatabaseHelper()
+client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# Authentication dependency
+async def verify_secret(x_atliso_secret: str = Header(None)):
+    shared_secret = os.getenv("SHARED_SECRET")
+    if not shared_secret:
+        # If no secret is set in env, allow for now but log warning
+        print("⚠️ WARNING: SHARED_SECRET not set in environment. Authentication is wide open.")
+        return
+    if x_atliso_secret != shared_secret:
+        raise HTTPException(status_code=401, detail="Unauthorized: Invalid secret")
 
 class BotConfigUpdate(BaseModel):
     bot_name: Optional[str] = None
@@ -16,16 +33,16 @@ class BotConfigUpdate(BaseModel):
     model: Optional[str] = None
     temperature: Optional[float] = None
     max_tokens: Optional[int] = None
-    widget_settings: Optional[Dict[str, Any]] = None # branding, logos, colors, avatars
+    widget_settings: Optional[Dict[str, Any]] = None
 
 @router.get("/api/v1/config/{org_id}")
 async def get_config(org_id: str):
-    """Get bot configuration for an organization"""
+    """Get bot configuration for an organization. Auto-creates default if missing."""
     config = await db.get_bot_config(org_id)
+    
     if not config:
-        # Return default config if none exists, but indicate it's a default
-        return {
-            "org_id": org_id,
+        # Auto-create default record
+        default_settings = {
             "bot_name": "Support Bot",
             "welcome_message": "Hello! How can I help you?",
             "model": "gpt-4o-mini",
@@ -38,34 +55,139 @@ async def get_config(org_id: str):
                 "avatars": []
             }
         }
+        await db.upsert_bot_config(org_id, default_settings)
+        # Fetch it back to return full structure
+        config = await db.get_bot_config(org_id)
     
-    # Parse JSON fields if they are strings (asyncpg might return dict for jsonb automatically, but safer to check)
-    if isinstance(config.get('widget_settings'), str):
+    if config and isinstance(config.get('widget_settings'), str):
         config['widget_settings'] = json.loads(config['widget_settings'])
         
     return config
 
 @router.patch("/api/v1/config/{org_id}")
-async def update_config(org_id: str, config: BotConfigUpdate):
+async def update_config(org_id: str, config: BotConfigUpdate, _ = Depends(verify_secret)):
     """Update bot configuration"""
-    # Convert Pydantic model to dict, excluding None values
     config_data = config.model_dump(exclude_unset=True)
+    widget_data = config_data.pop('widget_settings', None)
     
-    success = await db.upsert_bot_config(org_id, config_data)
-    if not success:
-        raise HTTPException(status_code=500, detail="Failed to update configuration")
+    if config_data:
+        success = await db.upsert_bot_config(org_id, config_data)
+        if not success:
+            raise HTTPException(status_code=500, detail="Failed to update configuration")
+            
+    if widget_data:
+        success = await db.update_bot_config_widget_settings(org_id, widget_data)
+        if not success:
+            raise HTTPException(status_code=500, detail="Failed to update widget settings")
         
     return {"status": "success", "org_id": org_id}
 
+# ==========================================
+# Knowledge Base Endpoints
+# ==========================================
+
+@router.get("/api/v1/config/{org_id}/knowledge")
+async def list_knowledge(org_id: str):
+    """List knowledge base documents for an organization"""
+    docs = await db.get_knowledge_docs(org_id)
+    return docs
+
+@router.delete("/api/v1/config/{org_id}/knowledge/{doc_id}")
+async def delete_knowledge(org_id: str, doc_id: str, _ = Depends(verify_secret)):
+    """Delete a knowledge base document"""
+    success = await db.delete_knowledge_doc(doc_id, org_id)
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to delete document")
+    return {"status": "success", "doc_id": doc_id}
+
 @router.post("/api/v1/config/{org_id}/knowledge")
-async def upload_knowledge(org_id: str, file: UploadFile = File(...)):
-    """
-    Upload knowledge base document (PDF/Text)
-    TODO: Implement PDF parsing and Vector Store insertion
-    """
-    # Just a stub for now
+async def upload_knowledge(
+    org_id: str, 
+    background_tasks: BackgroundTasks,
+    file: UploadFile = File(...),
+    _ = Depends(verify_secret)
+):
+    """Upload and process a knowledge base document"""
+    if not file.filename.lower().endswith('.pdf'):
+        raise HTTPException(status_code=400, detail="Only PDF files are supported")
+    
+    doc_id = str(uuid.uuid4())
+    content = await file.read()
+    file_size = len(content)
+    
+    # Create initial record
+    await db.upsert_knowledge_doc({
+        "id": doc_id,
+        "org_id": org_id,
+        "filename": file.filename,
+        "file_size": file_size,
+        "status": "processing"
+    })
+    
+    # Offload processing to background
+    background_tasks.add_task(process_pdf_background, doc_id, org_id, file.filename, content)
+    
     return {
-        "status": "received", 
-        "filename": file.filename, 
-        "message": "File received. Processing logic to be implemented."
+        "status": "processing",
+        "doc_id": doc_id,
+        "filename": file.filename
     }
+
+async def process_pdf_background(doc_id: str, org_id: str, filename: str, content: bytes):
+    """Background task to parse, chunk, embed, and store PDF content"""
+    try:
+        # 1. Parse PDF
+        pdf_file = io.BytesIO(content)
+        reader = PyPDF2.PdfReader(pdf_file)
+        text = ""
+        for page in reader.pages:
+            text += page.extract_text() + "\n"
+        
+        if not text.strip():
+            raise Exception("PDF is empty or could not be parsed")
+            
+        # 2. Chunking (Simple)
+        chunk_size = 1000
+        overlap = 200
+        chunks = []
+        for i in range(0, len(text), chunk_size - overlap):
+            chunks.append(text[i:i + chunk_size])
+            if i + chunk_size >= len(text):
+                break
+        
+        # 3. Embedding & Storage
+        for i, chunk in enumerate(chunks):
+            # Get embedding
+            response = await client.embeddings.create(
+                input=chunk,
+                model="text-embedding-3-small"
+            )
+            embedding = response.data[0].embedding
+            
+            # Store in vector DB
+            await db.insert_knowledge_vector(
+                org_id=org_id,
+                doc_id=doc_id,
+                content=chunk,
+                embedding=embedding,
+                metadata={"filename": filename, "chunk_index": i}
+            )
+        
+        # 4. Update status to ready
+        await db.upsert_knowledge_doc({
+            "id": doc_id,
+            "org_id": org_id,
+            "filename": filename,
+            "status": "ready",
+            "chunk_count": len(chunks)
+        })
+        print(f"✅ Knowledge Doc {filename} processed successfully. {len(chunks)} chunks.")
+        
+    except Exception as e:
+        print(f"❌ Failed to process knowledge doc {filename}: {e}")
+        await db.upsert_knowledge_doc({
+            "id": doc_id,
+            "org_id": org_id,
+            "filename": filename,
+            "status": "failed"
+        })
