@@ -406,26 +406,31 @@ export function InputArea() {
           <div style={{ marginBottom: '-20px' }} className="flex items-center gap-5">
             <button
               onClick={() => setIsCommandMenuOpen(!isCommandMenuOpen)}
+              title="Quick Actions"
               className={cn(
-                "p-2 rounded-lg transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-gray-300",
-                isCommandMenuOpen ? "text-indigo-600 bg-indigo-50" : "text-gray-400 hover:text-gray-600 hover:bg-gray-100 active:bg-gray-200"
+                "p-2 rounded-lg transition-all duration-200 cursor-pointer focus:outline-none",
+                isCommandMenuOpen
+                  ? "text-black bg-gray-100"
+                  : "text-gray-400 hover:text-gray-600 hover:bg-gray-50 active:bg-gray-100"
               )}
             >
-              <Zap className="w-5 h-5 fill-current" />
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="4.5" r="2.5" /><path d="m10.2 6.3-3.9 3.9" /><circle cx="4.5" cy="12" r="2.5" /><path d="M7 12h10" /><circle cx="19.5" cy="12" r="2.5" /><path d="m13.8 17.7 3.9-3.9" /><circle cx="12" cy="19.5" r="2.5" /></svg>
             </button>
             <button
               onClick={handleFileAttachment}
-              className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-gray-300"
+              title="Upload File"
+              className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-all duration-200 cursor-pointer focus:outline-none"
             >
               <Paperclip className="w-5 h-5" />
             </button>
             <button
               onClick={toggleVoiceRecording}
+              title="Voice Message"
               className={cn(
-                "p-2 rounded-lg transition-all duration-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300",
+                "p-2 rounded-lg transition-all duration-300 cursor-pointer focus:outline-none",
                 isRecording
-                  ? "text-blue-600 bg-blue-50 scale-110"
-                  : "text-gray-400 hover:text-gray-600 hover:bg-gray-100 active:bg-gray-200"
+                  ? "text-red-500 bg-red-50 scale-110"
+                  : "text-gray-400 hover:text-gray-600 hover:bg-gray-50 active:bg-gray-100"
               )}
             >
               <Mic className="w-5 h-5" />
@@ -436,10 +441,11 @@ export function InputArea() {
             style={{ padding: '8px 8px', justifyItems: 'center', borderRadius: '50px' }}
             onClick={handleSend}
             disabled={!message.trim() || isDisabled}
+            title="Send Message"
             className={cn(
               'p-1.5 rounded-lg transition-all cursor-pointer focus:outline-none',
               message.trim() && !isDisabled
-                ? 'bg-black text-white shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 focus:ring-4 focus:ring-black/20'
+                ? 'bg-black text-white shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95'
                 : 'bg-gray-100 text-gray-400 cursor-not-allowed'
             )}
           >
