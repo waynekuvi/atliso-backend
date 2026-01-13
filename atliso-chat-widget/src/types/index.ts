@@ -30,6 +30,7 @@ export interface Message {
   attachment?: Attachment;
   gif?: GifData;
   audio?: AudioData;
+  quickReplies?: { label: string; value: string }[];
 }
 
 // Thread/Conversation types

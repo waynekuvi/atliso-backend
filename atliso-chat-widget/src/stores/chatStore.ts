@@ -58,6 +58,7 @@ interface ChatState {
     attachment?: Message['attachment'];
     gif?: Message['gif'];
     audio?: Message['audio'];
+    quickReplies?: Message['quickReplies'];
   }) => Promise<void>;
 
   setCustomization: (customization: Customization | null) => void;
@@ -301,6 +302,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       attachment: extras.attachment,
       gif: extras.gif,
       audio: extras.audio,
+      quickReplies: extras.quickReplies,
     });
 
     // Show typing indicator (only if AI mode)
