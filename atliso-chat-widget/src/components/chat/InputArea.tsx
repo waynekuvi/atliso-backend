@@ -404,44 +404,60 @@ export function InputArea() {
         {/* Bottom Toolbar */}
         <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between">
           <div style={{ marginBottom: '-20px' }} className="flex items-center gap-5">
-            <button
-              onClick={() => setIsCommandMenuOpen(!isCommandMenuOpen)}
-              title="Quick Actions"
-              className={cn(
-                "p-2 rounded-lg transition-all duration-200 cursor-pointer focus:outline-none",
-                isCommandMenuOpen
-                  ? "text-black bg-gray-100"
-                  : "text-gray-400 hover:text-gray-600 hover:bg-gray-50 active:bg-gray-100"
-              )}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="4.5" r="2.5" /><path d="m10.2 6.3-3.9 3.9" /><circle cx="4.5" cy="12" r="2.5" /><path d="M7 12h10" /><circle cx="19.5" cy="12" r="2.5" /><path d="m13.8 17.7 3.9-3.9" /><circle cx="12" cy="19.5" r="2.5" /></svg>
-            </button>
-            <button
-              onClick={handleFileAttachment}
-              title="Upload File"
-              className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-all duration-200 cursor-pointer focus:outline-none"
-            >
-              <Paperclip className="w-5 h-5" />
-            </button>
-            <button
-              onClick={toggleVoiceRecording}
-              title="Voice Message"
-              className={cn(
-                "p-2 rounded-lg transition-all duration-300 cursor-pointer focus:outline-none",
-                isRecording
-                  ? "text-red-500 bg-red-50 scale-110"
-                  : "text-gray-400 hover:text-gray-600 hover:bg-gray-50 active:bg-gray-100"
-              )}
-            >
-              <Mic className="w-5 h-5" />
-            </button>
+            {/* Command Menu Button */}
+            <div className="relative group/tooltip">
+              <button
+                onClick={() => setIsCommandMenuOpen(!isCommandMenuOpen)}
+                className={cn(
+                  "p-2 rounded-lg transition-all duration-200 cursor-pointer focus:outline-none",
+                  isCommandMenuOpen
+                    ? "text-black"
+                    : "text-gray-400 hover:text-gray-600"
+                )}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="4.5" r="2.5" /><path d="m10.2 6.3-3.9 3.9" /><circle cx="4.5" cy="12" r="2.5" /><path d="M7 12h10" /><circle cx="19.5" cy="12" r="2.5" /><path d="m13.8 17.7 3.9-3.9" /><circle cx="12" cy="19.5" r="2.5" /></svg>
+              </button>
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                Quick Actions
+              </div>
+            </div>
+
+            {/* Attachment Button */}
+            <div className="relative group/tooltip">
+              <button
+                onClick={handleFileAttachment}
+                className="p-2 text-gray-400 hover:text-gray-600 rounded-lg transition-all duration-200 cursor-pointer focus:outline-none"
+              >
+                <Paperclip className="w-5 h-5" />
+              </button>
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                Upload File
+              </div>
+            </div>
+
+            {/* Voice Button */}
+            <div className="relative group/tooltip">
+              <button
+                onClick={toggleVoiceRecording}
+                className={cn(
+                  "p-2 rounded-lg transition-all duration-300 cursor-pointer focus:outline-none",
+                  isRecording
+                    ? "text-red-500 scale-110"
+                    : "text-gray-400 hover:text-gray-600"
+                )}
+              >
+                <Mic className="w-5 h-5" />
+              </button>
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                Voice Message
+              </div>
+            </div>
           </div>
 
           <button
             style={{ padding: '8px 8px', justifyItems: 'center', borderRadius: '50px' }}
             onClick={handleSend}
             disabled={!message.trim() || isDisabled}
-            title="Send Message"
             className={cn(
               'p-1.5 rounded-lg transition-all cursor-pointer focus:outline-none',
               message.trim() && !isDisabled

@@ -43,8 +43,8 @@ export function CommandMenu({ isOpen, onClose, onSelect }: CommandMenuProps) {
             <div className="absolute bottom-full left-0 mb-2 w-full px-5 z-40 animate-slide-up">
                 <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
                     <div className="px-4 py-3 border-b border-gray-50 flex items-center gap-2 bg-gray-50/50">
-                        <Zap className="w-4 h-4 text-indigo-500 fill-current" />
-                        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Quick Actions</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="4.5" r="2.5" /><path d="m10.2 6.3-3.9 3.9" /><circle cx="4.5" cy="12" r="2.5" /><path d="M7 12h10" /><circle cx="19.5" cy="12" r="2.5" /><path d="m13.8 17.7 3.9-3.9" /><circle cx="12" cy="19.5" r="2.5" /></svg>
+                        <span className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Quick Actions</span>
                     </div>
                     <div className="p-1">
                         {commands.map((cmd) => (
@@ -57,7 +57,7 @@ export function CommandMenu({ isOpen, onClose, onSelect }: CommandMenuProps) {
                                 className="w-full flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors group text-left"
                             >
                                 <div className="w-8 h-8 rounded-lg bg-gray-50 group-hover:bg-white border border-gray-100 group-hover:border-gray-200 flex items-center justify-center transition-colors">
-                                    <cmd.icon className="w-4 h-4 text-gray-500 group-hover:text-indigo-600 transition-colors" />
+                                    <cmd.icon className="w-4 h-4 text-gray-500 group-hover:text-black transition-colors" />
                                 </div>
                                 <div>
                                     <div className="text-sm font-medium text-gray-900">{cmd.label}</div>
