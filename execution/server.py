@@ -139,8 +139,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
 # Include routers
 app.include_router(config_router)
+
+# Mount Chat Widget Static Files
+WIDGET_DIST = Path(__file__).parent.parent / "atliso-chat-widget" / "dist"
+if WIDGET_DIST.exists():
+    app.mount("/widget", StaticFiles(directory=str(WIDGET_DIST)), name="widget")
+
+@app.get("/widget/index.js")
+async def get_widget_js():
+    """Alias for the main widget bundle"""
+    js_file = WIDGET_DIST / "atliso-chat-widget.umd.js"
+    if js_file.exists():
+        return FileResponse(js_file)
+    raise HTTPException(status_code=404, detail="Widget bundle not found")
 
 # Initialize router
 router = WorkflowRouter()

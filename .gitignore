@@ -29,4 +29,3 @@ logs/
 
 # Node (for widget)
 node_modules/
-dist/
