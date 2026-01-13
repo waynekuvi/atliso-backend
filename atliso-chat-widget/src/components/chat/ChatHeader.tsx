@@ -5,7 +5,7 @@ import { ChatHeaderDropdown } from './ChatHeaderDropdown';
 export function ChatHeader() {
   const { customization, setCurrentView, setIsOpen, toggleExpanded, getActiveThread, isExpanded } = useChatStore();
   const supportLogo = customization?.supportLogo;
-  
+
   const handleBack = () => {
     setCurrentView('messages');
   };
@@ -42,34 +42,34 @@ export function ChatHeader() {
     <div className="min-h-[50px] px-5 py-4 bg-white border-b border-gray-100 shrink-0 flex items-center justify-between z-10">
       <div className="flex items-center gap-3 overflow-hidden">
         {/* Back Button */}
-        <button 
-        style={{ marginLeft: '8px', marginRight: '8px' }}
+        <button
+          style={{ marginLeft: '8px', marginRight: '8px' }}
           onClick={handleBack}
           className="flex ml-2 p-2 hover:bg-gray-100 active:bg-gray-200 rounded-full transition-all duration-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300"
           aria-label="Go back"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
-        
+
         <div className="flex items-center justify-center shrink-0 overflow-hidden">
           {supportLogo ? (
             <img src={supportLogo} alt="Support" className="w-6 h-6 object-contain" />
           ) : (
-            <svg viewBox="0 0 24 24" className="w-7 h-7 text-white fill-current" fill="none"><path d="M12 2L2 22H22L12 2Z"/></svg>
+            <svg viewBox="0 0 24 24" className="w-7 h-7 text-white fill-current" fill="none"><path d="M12 2L2 22H22L12 2Z" /></svg>
           )}
         </div>
-        
+
         {/* Title & Subtitle */}
         <div className="min-w-0">
-          <h3 className="text-[15px] font-semibold text-gray-900 truncate leading-tight">
+          <h3 className="text-[14px] font-semibold text-gray-900 truncate leading-tight">
             {customization?.botName || 'Support AI Assistant'}
           </h3>
-          <p className="text-xs text-gray-500 truncate">
+          <p className="text-[11px] text-gray-400 truncate mt-0.5">
             {customization?.tagline || 'The team can also help'}
           </p>
         </div>
       </div>
-      
+
       {/* Right Actions */}
       <div className="flex items-center gap-1 shrink-0" style={{ marginRight: '8px' }}>
         <ChatHeaderDropdown
@@ -77,9 +77,9 @@ export function ChatHeader() {
           onExpandView={handleExpandView}
           isExpanded={isExpanded}
         />
-        
+
         <button
-        style={{ marginRight: '8px' }}
+          style={{ marginRight: '8px' }}
           onClick={() => setIsOpen(false)}
           className="p-2 hover:bg-gray-100 active:bg-gray-200 rounded-full transition-all duration-200 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300"
         >

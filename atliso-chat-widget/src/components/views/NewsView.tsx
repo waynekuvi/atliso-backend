@@ -66,10 +66,10 @@ export function NewsView() {
 
   const formatDate = (timestamp: string) => {
     const date = new Date(timestamp);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      year: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
     });
   };
 
@@ -90,9 +90,9 @@ export function NewsView() {
           <X className="w-5 h-5 text-black-500" />
         </button>
       </div>
-      
+
       {/* News Cards Container */}
-      <div 
+      <div
         style={{
           padding: '0 16px 16px 16px',
           display: 'flex',
@@ -136,7 +136,7 @@ export function NewsView() {
                 marginBottom: '12px',
                 position: 'relative',
               }}>
-                <img 
+                <img
                   src={item.imageUrl}
                   alt={item.title}
                   style={{
@@ -164,30 +164,31 @@ export function NewsView() {
                 </div>
               </div>
             )}
-            
+
             {/* News Content */}
-            <div>
-              <h2 style={{ 
-                fontSize: '15px', 
-                fontWeight: 700, 
+            <div style={{ padding: '0 2px' }}>
+              <h2 style={{
+                fontSize: '13px',
+                fontWeight: 600,
                 color: '#0F172A',
-                marginBottom: '8px',
-                lineHeight: '1.3'
+                marginBottom: '4px',
+                lineHeight: '1.4'
               }}>
                 {item.title}
               </h2>
-              <p style={{ 
-                fontSize: '13px', 
+              <p style={{
+                fontSize: '11px',
                 color: '#64748B',
                 lineHeight: 1.5,
-                marginBottom: '8px'
+                marginBottom: '4px'
               }}>
                 {item.summary}
               </p>
-              <p style={{ 
-                fontSize: '11px', 
+              <p style={{
+                fontSize: '10px',
                 color: '#64748B',
-                margin: 0
+                margin: 0,
+                opacity: 0.6
               }}>
                 {formatDate(item.timestamp)}
               </p>

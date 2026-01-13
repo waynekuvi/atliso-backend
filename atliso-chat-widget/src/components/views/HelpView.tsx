@@ -68,7 +68,7 @@ export function HelpView() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeArticle, setActiveArticle] = useState<FAQItem | null>(null);
   const supportLogo = customization?.supportLogo;
-  
+
   const filteredFaqs = useMemo(() => {
     if (!searchQuery.trim()) return faqData;
     const query = searchQuery.toLowerCase();
@@ -106,15 +106,15 @@ export function HelpView() {
         <div style={{ padding: '16px' }} className="p-6 overflow-y-auto">
           <div className="flex items-center gap-2 mb-6">
             <div className="flex -space-x-1">
-               {supportLogo ? (
-                 <img 
-                   src={supportLogo}
-                   alt="Atliso Logo" 
-                   className="w-6 h-6 rounded-full border border-white"
-                 />
-               ) : (
-                 <div className="w-6 h-6 rounded-full bg-gray-200 border border-white"></div>
-               )}
+              {supportLogo ? (
+                <img
+                  src={supportLogo}
+                  alt="Atliso Logo"
+                  className="w-6 h-6 rounded-full border border-white"
+                />
+              ) : (
+                <div className="w-6 h-6 rounded-full bg-gray-200 border border-white"></div>
+              )}
             </div>
             <p className="text-xs text-gray-500">Written by Atliso Team</p>
           </div>
@@ -130,57 +130,57 @@ export function HelpView() {
   return (
     <div className="flex flex-col h-full bg-gray-50/50">
       {/* Header */}
-      <div style={{ paddingLeft: '14px', paddingRight: '14px' }} className="min-h-[62px]  px-5 py-4 bg-white border-b border-gray-100 flex items-center justify-between sticky top-0 z-10">
-        <div className="flex items-center gap-3">
+      <div style={{ paddingLeft: '14px', paddingRight: '14px' }} className="min-h-[50px] px-4 py-3 bg-white border-b border-gray-100 flex items-center justify-between sticky top-0 z-10">
+        <div className="flex items-center gap-2">
           <button onClick={() => setCurrentView('home')} className="p-1 hover:bg-gray-100 rounded-full">
-            <ChevronLeft className="w-5 h-5 text-gray-500" />
+            <ChevronLeft className="w-4 h-4 text-gray-400" />
           </button>
-          <h2 style={{ marginLeft: '130px' }} className="text-[17px] font-semibold text-gray-900">Help</h2>
+          <h2 className="text-[14px] font-semibold text-gray-900">Help</h2>
         </div>
         <button onClick={() => setIsOpen(false)} className="p-1 hover:bg-gray-100 rounded-full">
-          <X className="w-5 h-5 text-black-500" />
+          <X className="w-4 h-4 text-gray-400" />
         </button>
       </div>
 
       {/* Search */}
-      <div style={{ paddingLeft: '14px', paddingRight: '14px',  marginBottom: '20px' }} className="bg-white px-5 py-4 border-b border-gray-100">
+      <div style={{ paddingLeft: '14px', paddingRight: '14px', marginBottom: '10px' }} className="bg-white px-5 py-3 border-b border-gray-100">
         <div className="relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
-          style={{ paddingLeft: '32px', height: '40px' }}
+            style={{ paddingLeft: '32px', height: '36px' }}
             type="text"
             placeholder="Search for help"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-[15px] focus:outline-none focus:ring-2 focus:ring-black-500/20 focus:bg-white border border-transparent focus:border-black-500 transition-all placeholder:text-gray-500"
+            className="w-full pl-8 pr-3 py-2 bg-gray-50 rounded-lg text-[13px] border border-gray-100 focus:outline-none focus:ring-1 focus:ring-gray-200 focus:bg-white transition-all placeholder:text-gray-400"
           />
         </div>
       </div>
-      
+
       {/* Collection Header */}
-      <div style={{ paddingLeft: '14px', paddingRight: '14px' }} className="px-5 py-4 bg-gray-50/50">
-        <h3 className="font-semibold text-gray-900 text-[15px]">{filteredFaqs.length} collections</h3>
+      <div style={{ paddingLeft: '14px', paddingRight: '14px' }} className="px-5 py-2 bg-gray-50/50">
+        <h3 className="font-semibold text-gray-400 text-[11px] uppercase tracking-wider">{filteredFaqs.length} collections</h3>
       </div>
-      
+
       {/* Collections List */}
-      <div style={{cursor: 'pointer', paddingLeft: '14px', paddingRight: '14px', paddingTop: '6px', }} className="flex-1 bg-white overflow-y-auto">
-        <div className="divide-y divide-gray-100">
+      <div style={{ cursor: 'pointer', paddingLeft: '14px', paddingRight: '14px' }} className="flex-1 bg-white overflow-y-auto atliso-scrollbar">
+        <div className="divide-y divide-gray-50">
           {filteredFaqs.map((faq) => (
             <button
               key={faq.id}
               onClick={() => handleArticleClick(faq)}
-              className="w-full px-5 py-5 text-left hover:bg-gray-50 transition-colors group flex items-start justify-between gap-4"
+              className="w-full px-5 py-5 text-left hover:bg-gray-50 active:bg-gray-100 transition-colors group flex items-start justify-between gap-4"
             >
-              <div style={{marginTop: '18px' }} className="space-y-3.5">
-                <h3 className="text-[15px] font-semibold text-gray-900 group-hover:text-black-600 transition-colors">
+              <div className="space-y-1">
+                <h3 className="text-[14px] font-semibold text-gray-900 group-hover:text-black transition-colors">
                   {faq.title}
                 </h3>
-                <p className="text-[14px] text-gray-500 leading-normal">
+                <p className="text-[12px] text-gray-500 leading-normal line-clamp-2">
                   {faq.description}
                 </p>
-                <p className="text-[13px] text-gray-400 pt-1">12 articles</p>
+                <p className="text-[11px] text-gray-400 pt-1">12 articles</p>
               </div>
-              <ChevronRight className="w-5 h-5 text-black-500/60 shrink-0 mt-1" />
+              <ChevronRight className="w-4 h-4 text-gray-300 shrink-0 mt-1" />
             </button>
           ))}
         </div>

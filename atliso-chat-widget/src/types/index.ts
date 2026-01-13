@@ -65,6 +65,7 @@ export interface Customization {
   // New configurable fields from API
   botName?: string;
   welcomeMessage?: string;
+  homepageHeading?: string;
   position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
   primaryColor?: string;
   launcherText?: string;

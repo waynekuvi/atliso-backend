@@ -23,16 +23,14 @@ export function MessageItem({ message }: MessageItemProps) {
         {/* Bubble */}
         <div
           style={{
-            fontSize: '14px',
-            padding: '0.5rem 1rem',
             margin: isUser ? '0 0.5rem 0 auto' : '0 auto 0 0.5rem',
             width: 'fit-content'
           }}
           className={cn(
-            'px-4 py-3 text-[15px] leading-relaxed transition-all duration-200 overflow-hidden overflow-x-auto max-h-[500px] overflow-y-auto custom-scrollbar',
+            'px-3.5 py-2.5 text-[14px] leading-relaxed transition-all duration-200 overflow-hidden overflow-x-auto max-h-[500px] overflow-y-auto custom-scrollbar',
             isUser
-              ? 'bg-black text-white rounded-[20px] shadow-md hover:shadow-lg'
-              : 'bg-gray-50 text-gray-800 border border-gray-200 rounded-[20px] shadow-sm hover:shadow-md hover:border-gray-300'
+              ? 'bg-black text-white rounded-[16px] shadow-sm hover:shadow-md'
+              : 'bg-gray-50 text-gray-800 border border-gray-100 rounded-[16px] shadow-sm hover:shadow-md hover:border-gray-200'
           )}
         >
           {/* Attachment */}

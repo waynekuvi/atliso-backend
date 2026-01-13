@@ -12,14 +12,27 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
 
-/* Hide scrollbar for messages */
+/* Custom thin scrollbar for premium feel */
 .atliso-scrollbar::-webkit-scrollbar {
-  display: none;
+  width: 5px;
+}
+
+.atliso-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.atliso-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.atliso-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .atliso-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
 }
 
 /* Animation keyframes */
@@ -121,11 +134,15 @@
 
 /* Hide scrollbar for clean look in some containers */
 .no-scrollbar::-webkit-scrollbar {
-  display: none;
+  width: 4px;
+}
+.no-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
 }
 .no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.05) transparent;
 }
 
 /* Custom scrollbar for message bubbles */

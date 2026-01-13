@@ -104,48 +104,40 @@ export function HomeView() {
 
   return (
     <div
-      className="flex flex-col min-h-full"
+      className="flex flex-col min-h-full atliso-scrollbar"
       style={{ backgroundImage: fullBackground, backgroundColor: '#F3F4F6', position: 'relative' }}
     >
       {/* Header Content */}
       <div
         className="relative text-white shrink-0"
         style={{
-          paddingTop: '16px',
-          paddingBottom: '54px',
-          paddingLeft: '20px',
-          paddingRight: '20px',
+          paddingTop: '20px',
+          paddingBottom: '48px',
+          paddingLeft: '24px',
+          paddingRight: '24px',
         }}
       >
         {/* Top Row - Logo & Avatars */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
           {/* Logo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             {logo ? (
               <img
                 src={logo}
-                alt="Atliso Logo"
-                style={{ height: '28px', width: 'auto' }}
-                onError={(e) => {
-                  console.error('Logo failed to load:', logo);
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                }}
-                onLoad={() => {
-                  console.log('Logo loaded successfully:', logo);
-                }}
+                alt="Logo"
+                style={{ height: '24px', width: 'auto' }}
               />
             ) : (
-              <svg viewBox="0 0 24 24" style={{ width: '28px', height: '28px', fill: 'white' }}>
+              <svg viewBox="0 0 24 24" style={{ width: '24px', height: '24px', fill: 'white' }}>
                 <path d="M12 2L2 22H22L12 2Z" />
               </svg>
             )}
-            <span style={{ fontWeight: 300, fontSize: '20px', letterSpacing: '-0.02em' }}>
+            <span style={{ fontWeight: 600, fontSize: '16px', letterSpacing: '-0.01em' }}>
               {customization?.botName || "Atliso"}
             </span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             {/* Avatars */}
             {avatars.length > 0 && (
               <div style={{ display: 'flex' }}>
@@ -155,12 +147,12 @@ export function HomeView() {
                     src={url}
                     alt={`Agent ${idx + 1}`}
                     style={{
-                      width: '36px',
-                      height: '36px',
+                      width: '32px',
+                      height: '32px',
                       borderRadius: '50%',
-                      border: '2px solid rgba(255,255,255,0.28)',
+                      border: '2px solid rgba(255,255,255,0.2)',
                       objectFit: 'cover',
-                      marginLeft: idx > 0 ? '-10px' : '0',
+                      marginLeft: idx > 0 ? '-8px' : '0',
                     }}
                   />
                 ))}
@@ -171,31 +163,25 @@ export function HomeView() {
             <button
               onClick={() => setIsOpen(false)}
               style={{
-                padding: '6px',
+                padding: '4px',
                 background: 'transparent',
                 border: 'none',
                 cursor: 'pointer',
-                borderRadius: '50%',
               }}
             >
-              <X style={{ width: '22px', height: '22px', color: 'rgba(255,255,255,0.9)' }} />
+              <X style={{ width: '20px', height: '20px', color: 'rgba(255,255,255,0.8)' }} />
             </button>
           </div>
         </div>
 
         {/* Greeting */}
-        <div>
-          <h2 style={{ fontSize: '22px', fontWeight: 500, opacity: 0.6 }}>
+        <div style={{ marginTop: '4px' }}>
+          <h2 style={{ fontSize: '13px', fontWeight: 500, opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             {greetingText} {greetingEmoji}
           </h2>
-          <h1 style={{ marginTop: '-8px', fontSize: '28px', fontWeight: 500, lineHeight: 1.2 }}>
-            {customization?.welcomeMessage || "How can we help?"}
+          <h1 style={{ marginTop: '2px', fontSize: '18px', fontWeight: 600, lineHeight: 1.25 }}>
+            {customization?.homepageHeading || "How can we help?"}
           </h1>
-          {customization?.tagline && (
-            <p style={{ marginTop: '8px', fontSize: '15px', fontWeight: 400, opacity: 0.8 }}>
-              {customization.tagline}
-            </p>
-          )}
         </div>
       </div>
 
@@ -203,11 +189,11 @@ export function HomeView() {
       <div
         style={{
           position: 'relative',
-          marginTop: '-28px',
+          marginTop: '-24px',
           padding: '0 16px 16px 16px',
           display: 'flex',
           flexDirection: 'column',
-          gap: '10px',
+          gap: '8px',
         }}
       >
         {/* Recent Message Card */}
@@ -220,17 +206,17 @@ export function HomeView() {
               borderRadius: cardRadius,
               border: cardBorder,
               boxShadow: cardShadow,
-              padding: '14px 16px',
+              padding: '12px 14px',
               textAlign: 'left',
               outline: 'none',
               cursor: 'pointer',
             }}
           >
-            <h3 style={{ fontWeight: 700, fontSize: '15px', color: '#0F172A', marginBottom: '12px' }}>
-              Recent message
+            <h3 style={{ fontWeight: 600, fontSize: '13px', color: '#0F172A', marginBottom: '8px', opacity: 0.6 }}>
+              RECENT MESSAGE
             </h3>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               {/* Bot Icon */}
               <div style={{
                 display: 'flex',
@@ -240,16 +226,18 @@ export function HomeView() {
                 overflow: 'hidden',
               }}>
                 {supportLogo ? (
-                  <img src={supportLogo} alt="Support" style={{ width: '36px', height: '36px', objectFit: 'contain' }} />
+                  <img src={supportLogo} alt="Support" style={{ width: '32px', height: '32px', objectFit: 'contain' }} />
                 ) : (
-                  <svg viewBox="0 0 24 24" style={{ width: '28px', height: '28px', fill: 'white' }}><path d="M12 2L2 22H22L12 2Z" /></svg>
+                  <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg viewBox="0 0 24 24" style={{ width: '16px', height: '16px', fill: 'white' }}><path d="M12 2L2 22H22L12 2Z" /></svg>
+                  </div>
                 )}
               </div>
 
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{
                   fontSize: '13px',
-                  fontWeight: 600,
+                  fontWeight: 500,
                   color: '#0F172A',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
@@ -257,17 +245,17 @@ export function HomeView() {
                 }}>
                   {lastMessage.content}
                 </p>
-                <p style={{ fontSize: '12px', color: '#64748B', marginTop: '3px' }}>
-                  Support AI Assistant • {formatRelativeTime(lastMessage.timestamp)}
+                <p style={{ fontSize: '11px', color: '#64748B', marginTop: '1px' }}>
+                  Support AI • {formatRelativeTime(lastMessage.timestamp)}
                 </p>
               </div>
 
-              <ChevronRight style={{ width: '18px', height: '18px', color: '#2563EB', flexShrink: 0 }} />
+              <ChevronRight style={{ width: '16px', height: '16px', color: '#000', opacity: 0.3, flexShrink: 0 }} />
             </div>
           </button>
         )}
 
-        {/* Recent News Container */}
+        {/* Feature/News Card */}
         <button
           onClick={() => setCurrentView('news')}
           style={{
@@ -276,74 +264,28 @@ export function HomeView() {
             borderRadius: cardRadius,
             border: cardBorder,
             boxShadow: cardShadow,
-            padding: '14px 16px',
+            padding: '12px 14px',
             textAlign: 'left',
             outline: 'none',
             cursor: 'pointer',
           }}
         >
-          {/* News Image */}
-          <div style={{
-            width: '100%',
-            height: '160px',
-            borderRadius: '8px',
-            overflow: 'hidden',
-            marginBottom: '12px',
-            position: 'relative',
-          }}>
-            <img
-              src="https://res.cloudinary.com/dwjvtgiid/image/upload/v1766316650/alexandre-pellaes-6vAjp0pscX0-unsplash_iaw9fr.jpg"
-              alt="Recent news"
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-              }}
-            />
-            <div style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              background: 'linear-gradient(to top, rgba(0,0,0,0.7), transparent)',
-              padding: '8px 12px',
-            }}>
-              <p style={{
-                color: 'white',
-                fontSize: '12px',
-                fontWeight: 600,
-                margin: 0,
-              }}>
-                Latest Updates
-              </p>
-            </div>
-          </div>
-
-          {/* Simple Content */}
           <div style={{ textAlign: 'left' }}>
             <h4 style={{
-              fontSize: '14px',
+              fontSize: '13px',
               fontWeight: 600,
               color: '#0F172A',
-              marginBottom: '6px'
+              marginBottom: '4px'
             }}>
-              A new era of Insights has arrived
+              Latest Updates
             </h4>
             <p style={{
               fontSize: '12px',
               color: '#64748B',
               lineHeight: 1.4,
-              margin: '0 0 6px 0'
-            }}>
-              "We announced Fin Insights, a groundbreaking, AI-powered product that gives you complete visibility into every customer conversation, with AI-powered tools and suggestions that help you monitor, analyze, and instantly optimize your customer service quality."
-            </p>
-            <p style={{
-              fontSize: '12px',
-              color: '#2563EB',
-              fontWeight: 500,
               margin: 0
             }}>
-              Watch the event on-demand.
+              A new era of AI-powered Insights has arrived. Complete visibility into every conversation.
             </p>
           </div>
         </button>
@@ -355,9 +297,10 @@ export function HomeView() {
           border: cardBorder,
           boxShadow: cardShadow,
           overflow: 'hidden',
+          padding: '4px 0',
         }}>
           {/* Search Bar */}
-          <div style={{ padding: '14px 16px 10px 16px' }}>
+          <div style={{ padding: '8px 14px' }}>
             <button
               onClick={handleSearchClick}
               style={{
@@ -366,20 +309,20 @@ export function HomeView() {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 background: '#F1F5F9',
-                borderRadius: '12px',
-                padding: '10px 14px',
+                borderRadius: '8px',
+                padding: '8px 12px',
                 border: 'none',
                 cursor: 'pointer',
               }}
             >
-              <span style={{ color: '#64748B', fontWeight: 600, fontSize: '13px' }}>Search for help</span>
-              <Search style={{ width: '18px', height: '18px', color: '#2563EB' }} />
+              <span style={{ color: '#64748B', fontWeight: 500, fontSize: '12px' }}>Search for help</span>
+              <Search style={{ width: '14px', height: '14px', color: '#64748B' }} />
             </button>
           </div>
 
           {/* Links List */}
-          <div style={{ borderTop: '1px solid #EEF2F6' }}>
-            {homeLinks.map((link, idx) => (
+          <div>
+            {homeLinks.slice(0, 3).map((link, idx) => (
               <button
                 key={idx}
                 onClick={handleSearchClick}
@@ -388,172 +331,40 @@ export function HomeView() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  padding: '12px 16px',
+                  padding: '10px 14px',
                   background: 'transparent',
                   border: 'none',
-                  borderBottom: idx < homeLinks.length - 1 ? '1px solid #EEF2F6' : 'none',
                   cursor: 'pointer',
                   textAlign: 'left',
                 }}
               >
-                <span style={{ color: '#334155', fontWeight: 500, fontSize: '13px', paddingRight: '14px', lineHeight: 1.25 }}>
+                <span style={{ color: '#334155', fontWeight: 500, fontSize: '12px', paddingRight: '12px' }}>
                   {link.label}
                 </span>
-                <ChevronRight style={{ width: '18px', height: '18px', color: '#2563EB', flexShrink: 0, opacity: 0.55 }} />
+                <ChevronRight style={{ width: '14px', height: '14px', color: '#000', opacity: 0.2, flexShrink: 0 }} />
               </button>
             ))}
           </div>
-        </div>
-
-        {/* Feature Request Card */}
-        <button
-          style={{
-            width: '100%',
-            background: 'white',
-            borderRadius: cardRadius,
-            border: cardBorder,
-            boxShadow: cardShadow,
-            padding: '12px 16px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            outline: 'none',
-            cursor: 'pointer',
-            textAlign: 'left',
-          }}
-        >
-          <span style={{ fontWeight: 600, color: '#334155', fontSize: '13px' }}>
-            Have an idea for a new feature or integration?
-          </span>
-          <ExternalLink style={{ width: '18px', height: '18px', color: '#2563EB', flexShrink: 0 }} />
-        </button>
-
-        {/* Status Card */}
-        <button
-          type="button"
-          onClick={handleDeveloperAuth}
-          style={{
-            width: '100%',
-            background: 'white',
-            borderRadius: cardRadius,
-            border: cardBorder,
-            boxShadow: cardShadow,
-            padding: '12px 16px',
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: '12px',
-            textAlign: 'left',
-            cursor: 'pointer',
-            outline: 'none',
-          }}
-        >
-          <div style={{
-            width: '22px',
-            height: '22px',
-            borderRadius: '50%',
-            background: '#D1FAE5',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-            marginTop: '2px',
-          }}>
-            <CheckCircle2 style={{ width: '14px', height: '14px', color: '#059669' }} />
-          </div>
-          <div>
-            <h3 style={{ fontWeight: 700, color: '#0F172A', fontSize: '13px' }}>
-              Status: All Systems Operational
-            </h3>
-            <p style={{ fontSize: '12px', color: '#64748B', marginTop: '3px' }}>
-              Updated {new Date().toLocaleDateString()}
-            </p>
-          </div>
-        </button>
-
-        <button
-          onClick={() => openExternal('#')}
-          style={{
-            width: '100%',
-            background: 'white',
-            borderRadius: cardRadius,
-            border: cardBorder,
-            boxShadow: cardShadow,
-            padding: '12px 16px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            outline: 'none',
-            cursor: 'pointer',
-            textAlign: 'left',
-          }}
-        >
-          <span style={{ fontWeight: 600, color: '#334155', fontSize: '13px' }}>Contact sales</span>
-          <ExternalLink style={{ width: '18px', height: '18px', color: '#2563EB', flexShrink: 0 }} />
-        </button>
-
-        <div style={{
-          background: 'white',
-          borderRadius: cardRadius,
-          border: cardBorder,
-          boxShadow: cardShadow,
-          overflow: 'hidden',
-        }}>
-          <button
-            onClick={() => openExternal('#')}
-            style={{
-              width: '100%',
-              padding: '12px 16px',
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              textAlign: 'left',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
-            <span style={{ fontWeight: 600, color: '#334155', fontSize: '13px' }}>Join our dev community on Discord</span>
-            <ExternalLink style={{ width: '18px', height: '18px', color: '#2563EB', flexShrink: 0 }} />
-          </button>
-          <div style={{ height: 1, background: '#EEF2F6' }} />
-          <button
-            onClick={() => openExternal('#')}
-            style={{
-              width: '100%',
-              padding: '12px 16px',
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              textAlign: 'left',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
-            <span style={{ fontWeight: 600, color: '#334155', fontSize: '13px' }}>Ask on Reddit</span>
-            <ExternalLink style={{ width: '18px', height: '18px', color: '#2563EB', flexShrink: 0 }} />
-          </button>
         </div>
 
         <button
           onClick={() => startNewConversation()}
           style={{
             width: '100%',
-            background: 'white',
+            background: '#000',
             borderRadius: cardRadius,
-            border: cardBorder,
-            boxShadow: cardShadow,
-            padding: '14px 16px',
+            padding: '12px 16px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between',
-            outline: 'none',
+            justifyContent: 'center',
+            gap: '8px',
             cursor: 'pointer',
-            textAlign: 'left',
+            border: 'none',
+            color: '#FFF',
           }}
         >
-          <span style={{ fontWeight: 500, color: '#0F172A', fontSize: '13px' }}>Send us a message</span>
-          <ChevronRight style={{ width: '22px', height: '22px', color: '#2563EB', flexShrink: 0 }} />
+          <span style={{ fontWeight: 600, fontSize: '13px' }}>Send us a message</span>
+          <ChevronRight style={{ width: '16px', height: '16px' }} />
         </button>
       </div>
 
