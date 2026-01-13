@@ -131,9 +131,10 @@ export function MessageItem({ message }: MessageItemProps) {
                     useChatStore.getState().sendMessage(reply.value);
                   });
                 }}
-                className="px-4 py-2 bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded-full hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-sm"
+                className="px-3 py-1.5 bg-white border border-gray-200 text-gray-600 text-[11px] font-normal rounded-full hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow active:scale-95"
               >
-                {reply.label}
+                {/* Strip emojis for clean look if label has them, otherwise just render label */}
+                {reply.label.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim()}
               </button>
             ))}
           </div>
