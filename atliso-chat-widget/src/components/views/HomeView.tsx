@@ -140,7 +140,9 @@ export function HomeView() {
                 <path d="M12 2L2 22H22L12 2Z" />
               </svg>
             )}
-            <span style={{ fontWeight: 300, fontSize: '20px', letterSpacing: '-0.02em' }}>Atliso</span>
+            <span style={{ fontWeight: 300, fontSize: '20px', letterSpacing: '-0.02em' }}>
+              {customization?.botName || "Atliso"}
+            </span>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -186,9 +188,14 @@ export function HomeView() {
           <h2 style={{ fontSize: '22px', fontWeight: 500, opacity: 0.6 }}>
             {greetingText} {greetingEmoji}
           </h2>
-          <h1 style={{ marginTop: '-8px', fontSize: '28px', fontWeight: 500 }}>
-            How can we help?
+          <h1 style={{ marginTop: '-8px', fontSize: '28px', fontWeight: 500, lineHeight: 1.2 }}>
+            {customization?.welcomeMessage || "How can we help?"}
           </h1>
+          {customization?.tagline && (
+            <p style={{ marginTop: '8px', fontSize: '15px', fontWeight: 400, opacity: 0.8 }}>
+              {customization.tagline}
+            </p>
+          )}
         </div>
       </div>
 

@@ -496,7 +496,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     // Fetch remote configuration
     const fetchConfig = async () => {
       try {
-        const { webhookUrl } = get();
+        const { webhookUrl, threads, activeThreadId } = get();
         if (!webhookUrl) return;
 
         const apiBase = webhookUrl.split('/webhook/')[0];
@@ -504,18 +504,39 @@ export const useChatStore = create<ChatState>((set, get) => ({
         if (res.ok) {
           const data = await res.json();
           const newCustomization: Customization = {
-            botName: data.bot_name,
-            welcomeMessage: data.welcome_message,
-            primaryColor: data.widget_settings?.primaryColor,
-            logo: data.widget_settings?.logo,
-            supportLogo: data.widget_settings?.supportLogo,
-            avatars: data.widget_settings?.avatars,
+            botName: data.botName,
+            welcomeMessage: data.welcomeMessage,
+            primaryColor: data.primaryColor,
+            logo: data.logoUrl,
+            supportLogo: data.supportLogoUrl,
+            avatars: data.avatarUrl ? [data.avatarUrl] : [],
+            tagline: data.tagline,
             webhookUrl: get().webhookUrl
           };
 
           set((state) => ({
             customization: { ...state.customization, ...newCustomization }
           }));
+
+          // If the very first message is the default welcome message, update it
+          if (activeThreadId && threads.length > 0) {
+            const thread = threads.find(t => t.id === activeThreadId);
+            if (thread && thread.messages.length === 1 && thread.messages[0].role === 'bot') {
+              const updatedThreads = threads.map(t => {
+                if (t.id === activeThreadId) {
+                  const updatedMessages = [...t.messages];
+                  updatedMessages[0] = {
+                    ...updatedMessages[0],
+                    content: newCustomization.welcomeMessage || updatedMessages[0].content
+                  };
+                  return { ...t, messages: updatedMessages };
+                }
+                return t;
+              });
+              set({ threads: updatedThreads });
+              saveThreads(updatedThreads);
+            }
+          }
         }
       } catch (e) {
         console.error('Failed to fetch config:', e);
