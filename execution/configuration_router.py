@@ -119,23 +119,31 @@ async def get_config(org_id: str):
         widget_settings = json.loads(widget_settings)
     
     # Flatten the response for the widget
-    # The widget expects these fields at the top level
+    # Support both snake_case (DB/Legacy) and camelCase (New API)
     response = {
         **config,
         "botName": config.get('bot_name'),
         "welcomeMessage": config.get('welcome_message'),
-        "primaryColor": widget_settings.get('primaryColor', '#000000'),
-        "logoUrl": widget_settings.get('logo'),
-        "supportLogoUrl": widget_settings.get('supportLogo'),
-        "avatarUrl": widget_settings.get('avatars')[0] if widget_settings.get('avatars') else None,
-        "launcherText": widget_settings.get('launcherText', 'Chat with us'),
-        "position": widget_settings.get('position', 'bottom-right'),
+        "primaryColor": widget_settings.get('primaryColor') or widget_settings.get('primary_color') or '#000000',
+        "logoUrl": widget_settings.get('logoUrl') or widget_settings.get('logo'),
+        "supportLogoUrl": widget_settings.get('supportLogoUrl') or widget_settings.get('supportLogo'),
+        "avatarUrl": (widget_settings.get('avatars') or widget_settings.get('avatarUrl'))[0] if (widget_settings.get('avatars') or widget_settings.get('avatarUrl')) else None,
+        "launcherText": widget_settings.get('launcherText') or widget_settings.get('launcher_text') or 'Chat with us',
+        "position": widget_settings.get('position') or 'bottom-right',
+        "tagline": widget_settings.get('tagline') or 'We reply in minutes',
+        "showBranding": widget_settings.get('showBranding') if 'showBranding' in widget_settings else True,
     }
     
     # Remove raw db fields that aren't needed in flattened response
     response.pop('widget_settings', None)
     
     return response
+
+# Alias for the widget's specific expected path
+@router.get("/api/widget/config/{org_id}")
+async def get_widget_config_alias(org_id: str):
+    """Alias for get_config to match widget's internal mapping"""
+    return await get_config(org_id)
 
 @router.patch("/{org_id}")
 async def update_config(org_id: str, config: BotConfigUpdate, _ = Depends(verify_secret)):
