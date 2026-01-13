@@ -33,7 +33,7 @@ var Id;
 function f0() {
   if (Id) return at;
   Id = 1;
-  var c = /* @__PURE__ */ Symbol.for("react.transitional.element"), d = /* @__PURE__ */ Symbol.for("react.portal"), f = /* @__PURE__ */ Symbol.for("react.fragment"), s = /* @__PURE__ */ Symbol.for("react.strict_mode"), p = /* @__PURE__ */ Symbol.for("react.profiler"), b = /* @__PURE__ */ Symbol.for("react.consumer"), S = /* @__PURE__ */ Symbol.for("react.context"), M = /* @__PURE__ */ Symbol.for("react.forward_ref"), A = /* @__PURE__ */ Symbol.for("react.suspense"), y = /* @__PURE__ */ Symbol.for("react.memo"), R = /* @__PURE__ */ Symbol.for("react.lazy"), E = /* @__PURE__ */ Symbol.for("react.activity"), k = Symbol.iterator;
+  var c = /* @__PURE__ */ Symbol.for("react.transitional.element"), d = /* @__PURE__ */ Symbol.for("react.portal"), f = /* @__PURE__ */ Symbol.for("react.fragment"), s = /* @__PURE__ */ Symbol.for("react.strict_mode"), p = /* @__PURE__ */ Symbol.for("react.profiler"), b = /* @__PURE__ */ Symbol.for("react.consumer"), S = /* @__PURE__ */ Symbol.for("react.context"), M = /* @__PURE__ */ Symbol.for("react.forward_ref"), w = /* @__PURE__ */ Symbol.for("react.suspense"), y = /* @__PURE__ */ Symbol.for("react.memo"), R = /* @__PURE__ */ Symbol.for("react.lazy"), E = /* @__PURE__ */ Symbol.for("react.activity"), k = Symbol.iterator;
   function G(m) {
     return m === null || typeof m != "object" ? null : (m = k && m[k] || m["@@iterator"], typeof m == "function" ? m : null);
   }
@@ -260,7 +260,7 @@ function f0() {
       return m;
     }
   };
-  return at.Activity = E, at.Children = $, at.Component = X, at.Fragment = f, at.Profiler = p, at.PureComponent = ct, at.StrictMode = s, at.Suspense = A, at.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE = tt, at.__COMPILER_RUNTIME = {
+  return at.Activity = E, at.Children = $, at.Component = X, at.Fragment = f, at.Profiler = p, at.PureComponent = ct, at.StrictMode = s, at.Suspense = w, at.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE = tt, at.__COMPILER_RUNTIME = {
     __proto__: null,
     c: function(m) {
       return tt.H.useMemoCache(m);
@@ -442,19 +442,19 @@ function d0() {
         return S.now() - M;
       };
     }
-    var A = [], y = [], R = 1, E = null, k = 3, G = !1, et = !1, Y = !1, K = !1, X = typeof setTimeout == "function" ? setTimeout : null, dt = typeof clearTimeout == "function" ? clearTimeout : null, ct = typeof setImmediate < "u" ? setImmediate : null;
+    var w = [], y = [], R = 1, E = null, k = 3, G = !1, et = !1, Y = !1, K = !1, X = typeof setTimeout == "function" ? setTimeout : null, dt = typeof clearTimeout == "function" ? clearTimeout : null, ct = typeof setImmediate < "u" ? setImmediate : null;
     function it(T) {
       for (var B = f(y); B !== null; ) {
         if (B.callback === null) s(y);
         else if (B.startTime <= T)
-          s(y), B.sortIndex = B.expirationTime, d(A, B);
+          s(y), B.sortIndex = B.expirationTime, d(w, B);
         else break;
         B = f(y);
       }
     }
     function gt(T) {
       if (Y = !1, it(T), !et)
-        if (f(A) !== null)
+        if (f(w) !== null)
           et = !0, st || (st = !0, Ut());
         else {
           var B = f(y);
@@ -476,7 +476,7 @@ function d0() {
             var N = k;
             try {
               e: {
-                for (it(T), E = f(A); E !== null && !(E.expirationTime > T && he()); ) {
+                for (it(T), E = f(w); E !== null && !(E.expirationTime > T && he()); ) {
                   var P = E.callback;
                   if (typeof P == "function") {
                     E.callback = null, k = E.priorityLevel;
@@ -487,9 +487,9 @@ function d0() {
                       E.callback = $, it(T), B = !0;
                       break e;
                     }
-                    E === f(A) && s(A), it(T);
-                  } else s(A);
-                  E = f(A);
+                    E === f(w) && s(w), it(T);
+                  } else s(w);
+                  E = f(w);
                 }
                 if (E !== null) B = !0;
                 else {
@@ -600,7 +600,7 @@ function d0() {
         startTime: N,
         expirationTime: $,
         sortIndex: -1
-      }, N > P ? (T.sortIndex = N, d(y, T), f(A) === null && T === f(y) && (Y ? (dt(tt), tt = -1) : Y = !0, kt(gt, N - P))) : (T.sortIndex = $, d(A, T), et || G || (et = !0, st || (st = !0, Ut()))), T;
+      }, N > P ? (T.sortIndex = N, d(y, T), f(w) === null && T === f(y) && (Y ? (dt(tt), tt = -1) : Y = !0, kt(gt, N - P))) : (T.sortIndex = $, d(w, T), et || G || (et = !0, st || (st = !0, Ut()))), T;
     }, c.unstable_shouldYield = he, c.unstable_wrapCallback = function(T) {
       var B = k;
       return function() {
@@ -625,14 +625,14 @@ function m0() {
   if (lh) return ae;
   lh = 1;
   var c = Xo();
-  function d(A) {
-    var y = "https://react.dev/errors/" + A;
+  function d(w) {
+    var y = "https://react.dev/errors/" + w;
     if (1 < arguments.length) {
       y += "?args[]=" + encodeURIComponent(arguments[1]);
       for (var R = 2; R < arguments.length; R++)
         y += "&args[]=" + encodeURIComponent(arguments[R]);
     }
-    return "Minified React error #" + A + "; visit " + y + " for the full message or use the non-minified dev environment for full errors and additional helpful warnings.";
+    return "Minified React error #" + w + "; visit " + y + " for the full message or use the non-minified dev environment for full errors and additional helpful warnings.";
   }
   function f() {
   }
@@ -653,75 +653,75 @@ function m0() {
     p: 0,
     findDOMNode: null
   }, p = /* @__PURE__ */ Symbol.for("react.portal");
-  function b(A, y, R) {
+  function b(w, y, R) {
     var E = 3 < arguments.length && arguments[3] !== void 0 ? arguments[3] : null;
     return {
       $$typeof: p,
       key: E == null ? null : "" + E,
-      children: A,
+      children: w,
       containerInfo: y,
       implementation: R
     };
   }
   var S = c.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
-  function M(A, y) {
-    if (A === "font") return "";
+  function M(w, y) {
+    if (w === "font") return "";
     if (typeof y == "string")
       return y === "use-credentials" ? y : "";
   }
-  return ae.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE = s, ae.createPortal = function(A, y) {
+  return ae.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE = s, ae.createPortal = function(w, y) {
     var R = 2 < arguments.length && arguments[2] !== void 0 ? arguments[2] : null;
     if (!y || y.nodeType !== 1 && y.nodeType !== 9 && y.nodeType !== 11)
       throw Error(d(299));
-    return b(A, y, null, R);
-  }, ae.flushSync = function(A) {
+    return b(w, y, null, R);
+  }, ae.flushSync = function(w) {
     var y = S.T, R = s.p;
     try {
-      if (S.T = null, s.p = 2, A) return A();
+      if (S.T = null, s.p = 2, w) return w();
     } finally {
       S.T = y, s.p = R, s.d.f();
     }
-  }, ae.preconnect = function(A, y) {
-    typeof A == "string" && (y ? (y = y.crossOrigin, y = typeof y == "string" ? y === "use-credentials" ? y : "" : void 0) : y = null, s.d.C(A, y));
-  }, ae.prefetchDNS = function(A) {
-    typeof A == "string" && s.d.D(A);
-  }, ae.preinit = function(A, y) {
-    if (typeof A == "string" && y && typeof y.as == "string") {
+  }, ae.preconnect = function(w, y) {
+    typeof w == "string" && (y ? (y = y.crossOrigin, y = typeof y == "string" ? y === "use-credentials" ? y : "" : void 0) : y = null, s.d.C(w, y));
+  }, ae.prefetchDNS = function(w) {
+    typeof w == "string" && s.d.D(w);
+  }, ae.preinit = function(w, y) {
+    if (typeof w == "string" && y && typeof y.as == "string") {
       var R = y.as, E = M(R, y.crossOrigin), k = typeof y.integrity == "string" ? y.integrity : void 0, G = typeof y.fetchPriority == "string" ? y.fetchPriority : void 0;
       R === "style" ? s.d.S(
-        A,
+        w,
         typeof y.precedence == "string" ? y.precedence : void 0,
         {
           crossOrigin: E,
           integrity: k,
           fetchPriority: G
         }
-      ) : R === "script" && s.d.X(A, {
+      ) : R === "script" && s.d.X(w, {
         crossOrigin: E,
         integrity: k,
         fetchPriority: G,
         nonce: typeof y.nonce == "string" ? y.nonce : void 0
       });
     }
-  }, ae.preinitModule = function(A, y) {
-    if (typeof A == "string")
+  }, ae.preinitModule = function(w, y) {
+    if (typeof w == "string")
       if (typeof y == "object" && y !== null) {
         if (y.as == null || y.as === "script") {
           var R = M(
             y.as,
             y.crossOrigin
           );
-          s.d.M(A, {
+          s.d.M(w, {
             crossOrigin: R,
             integrity: typeof y.integrity == "string" ? y.integrity : void 0,
             nonce: typeof y.nonce == "string" ? y.nonce : void 0
           });
         }
-      } else y == null && s.d.M(A);
-  }, ae.preload = function(A, y) {
-    if (typeof A == "string" && typeof y == "object" && y !== null && typeof y.as == "string") {
+      } else y == null && s.d.M(w);
+  }, ae.preload = function(w, y) {
+    if (typeof w == "string" && typeof y == "object" && y !== null && typeof y.as == "string") {
       var R = y.as, E = M(R, y.crossOrigin);
-      s.d.L(A, R, {
+      s.d.L(w, R, {
         crossOrigin: E,
         integrity: typeof y.integrity == "string" ? y.integrity : void 0,
         nonce: typeof y.nonce == "string" ? y.nonce : void 0,
@@ -733,22 +733,22 @@ function m0() {
         media: typeof y.media == "string" ? y.media : void 0
       });
     }
-  }, ae.preloadModule = function(A, y) {
-    if (typeof A == "string")
+  }, ae.preloadModule = function(w, y) {
+    if (typeof w == "string")
       if (y) {
         var R = M(y.as, y.crossOrigin);
-        s.d.m(A, {
+        s.d.m(w, {
           as: typeof y.as == "string" && y.as !== "script" ? y.as : void 0,
           crossOrigin: R,
           integrity: typeof y.integrity == "string" ? y.integrity : void 0
         });
-      } else s.d.m(A);
-  }, ae.requestFormReset = function(A) {
-    s.d.r(A);
-  }, ae.unstable_batchedUpdates = function(A, y) {
-    return A(y);
-  }, ae.useFormState = function(A, y, R) {
-    return S.H.useFormState(A, y, R);
+      } else s.d.m(w);
+  }, ae.requestFormReset = function(w) {
+    s.d.r(w);
+  }, ae.unstable_batchedUpdates = function(w, y) {
+    return w(y);
+  }, ae.useFormState = function(w, y, R) {
+    return S.H.useFormState(w, y, R);
   }, ae.useFormStatus = function() {
     return S.H.useHostTransitionStatus();
   }, ae.version = "19.2.3", ae;
@@ -809,7 +809,7 @@ function p0() {
     }
     return null;
   }
-  function A(t) {
+  function w(t) {
     if (b(t) !== t)
       throw Error(s(188));
   }
@@ -832,8 +832,8 @@ function p0() {
       }
       if (n.child === i.child) {
         for (i = n.child; i; ) {
-          if (i === l) return A(n), t;
-          if (i === a) return A(n), e;
+          if (i === l) return w(n), t;
+          if (i === a) return w(n), e;
           i = i.sibling;
         }
         throw Error(s(188));
@@ -1051,22 +1051,22 @@ function p0() {
       var i = a.DetermineComponentFrameRoot(), u = i[0], r = i[1];
       if (u && r) {
         var h = u.split(`
-`), w = r.split(`
+`), A = r.split(`
 `);
         for (n = a = 0; a < h.length && !h[a].includes("DetermineComponentFrameRoot"); )
           a++;
-        for (; n < w.length && !w[n].includes(
+        for (; n < A.length && !A[n].includes(
           "DetermineComponentFrameRoot"
         ); )
           n++;
-        if (a === h.length || n === w.length)
-          for (a = h.length - 1, n = w.length - 1; 1 <= a && 0 <= n && h[a] !== w[n]; )
+        if (a === h.length || n === A.length)
+          for (a = h.length - 1, n = A.length - 1; 1 <= a && 0 <= n && h[a] !== A[n]; )
             n--;
         for (; 1 <= a && 0 <= n; a--, n--)
-          if (h[a] !== w[n]) {
+          if (h[a] !== A[n]) {
             if (a !== 1 || n !== 1)
               do
-                if (a--, n--, 0 > n || h[a] !== w[n]) {
+                if (a--, n--, 0 > n || h[a] !== A[n]) {
                   var _ = `
 ` + h[a].replace(" at new ", " at ");
                   return t.displayName && _.includes("<anonymous>") && (_ = _.replace("<anonymous>", t.displayName)), _;
@@ -1252,13 +1252,13 @@ Error generating stack: ` + a.message + `
   function Wh(t, e, l, a, n, i) {
     var u = t.pendingLanes;
     t.pendingLanes = l, t.suspendedLanes = 0, t.pingedLanes = 0, t.warmLanes = 0, t.expiredLanes &= l, t.entangledLanes &= l, t.errorRecoveryDisabledLanes &= l, t.shellSuspendCounter = 0;
-    var r = t.entanglements, h = t.expirationTimes, w = t.hiddenUpdates;
+    var r = t.entanglements, h = t.expirationTimes, A = t.hiddenUpdates;
     for (l = u & ~l; 0 < l; ) {
       var _ = 31 - pe(l), D = 1 << _;
       r[_] = 0, h[_] = -1;
-      var z = w[_];
+      var z = A[_];
       if (z !== null)
-        for (w[_] = null, _ = 0; _ < z.length; _++) {
+        for (A[_] = null, _ = 0; _ < z.length; _++) {
           var j = z[_];
           j !== null && (j.lane &= -536870913);
         }
@@ -2886,7 +2886,7 @@ Error generating stack: ` + a.message + `
         O
       ), dn(g, x), g.return = v, g);
     }
-    function w(v, g, x, O) {
+    function A(v, g, x, O) {
       return g === null || g.tag !== 4 || g.stateNode.containerInfo !== x.containerInfo || g.stateNode.implementation !== x.implementation ? (g = Fu(x, v.mode, O), g.return = v, g) : (g = n(g, x.children || []), g.return = v, g);
     }
     function _(v, g, x, O, F) {
@@ -2952,7 +2952,7 @@ Error generating stack: ` + a.message + `
           case G:
             return x.key === F ? h(v, g, x, O) : null;
           case et:
-            return x.key === F ? w(v, g, x, O) : null;
+            return x.key === F ? A(v, g, x, O) : null;
           case Q:
             return x = Fl(x), z(v, g, x, O);
         }
@@ -2988,7 +2988,7 @@ Error generating stack: ` + a.message + `
           case et:
             return v = v.get(
               O.key === null ? x : O.key
-            ) || null, w(g, v, O, F);
+            ) || null, A(g, v, O, F);
           case Q:
             return O = Fl(O), j(
               v,
@@ -3291,14 +3291,14 @@ Error generating stack: ` + a.message + `
     var i = n.firstBaseUpdate, u = n.lastBaseUpdate, r = n.shared.pending;
     if (r !== null) {
       n.shared.pending = null;
-      var h = r, w = h.next;
-      h.next = null, u === null ? i = w : u.next = w, u = h;
+      var h = r, A = h.next;
+      h.next = null, u === null ? i = A : u.next = A, u = h;
       var _ = t.alternate;
-      _ !== null && (_ = _.updateQueue, r = _.lastBaseUpdate, r !== u && (r === null ? _.firstBaseUpdate = w : r.next = w, _.lastBaseUpdate = h));
+      _ !== null && (_ = _.updateQueue, r = _.lastBaseUpdate, r !== u && (r === null ? _.firstBaseUpdate = A : r.next = A, _.lastBaseUpdate = h));
     }
     if (i !== null) {
       var D = n.baseState;
-      u = 0, _ = w = h = null, r = i;
+      u = 0, _ = A = h = null, r = i;
       do {
         var z = r.lane & -536870913, j = z !== r.lane;
         if (j ? (ht & z) === z : (a & z) === z) {
@@ -3339,14 +3339,14 @@ Error generating stack: ` + a.message + `
             payload: r.payload,
             callback: r.callback,
             next: null
-          }, _ === null ? (w = _ = j, h = D) : _ = _.next = j, u |= z;
+          }, _ === null ? (A = _ = j, h = D) : _ = _.next = j, u |= z;
         if (r = r.next, r === null) {
           if (r = n.shared.pending, r === null)
             break;
           j = r, r = j.next, j.next = null, n.lastBaseUpdate = j, n.shared.pending = null;
         }
       } while (!0);
-      _ === null && (h = D), n.baseState = h, n.firstBaseUpdate = w, n.lastBaseUpdate = _, i === null && (n.shared.lanes = 0), jl |= u, t.lanes = u, t.memoizedState = D;
+      _ === null && (h = D), n.baseState = h, n.firstBaseUpdate = A, n.lastBaseUpdate = _, i === null && (n.shared.lanes = 0), jl |= u, t.lanes = u, t.memoizedState = D;
     }
   }
   function fr(t, e) {
@@ -3550,47 +3550,47 @@ Error generating stack: ` + a.message + `
     if (i = t.baseState, n === null) t.memoizedState = i;
     else {
       e = n.next;
-      var r = u = null, h = null, w = e, _ = !1;
+      var r = u = null, h = null, A = e, _ = !1;
       do {
-        var D = w.lane & -536870913;
-        if (D !== w.lane ? (ht & D) === D : (We & D) === D) {
-          var z = w.revertLane;
+        var D = A.lane & -536870913;
+        if (D !== A.lane ? (ht & D) === D : (We & D) === D) {
+          var z = A.revertLane;
           if (z === 0)
             h !== null && (h = h.next = {
               lane: 0,
               revertLane: 0,
               gesture: null,
-              action: w.action,
-              hasEagerState: w.hasEagerState,
-              eagerState: w.eagerState,
+              action: A.action,
+              hasEagerState: A.hasEagerState,
+              eagerState: A.eagerState,
               next: null
             }), D === wa && (_ = !0);
           else if ((We & z) === z) {
-            w = w.next, z === wa && (_ = !0);
+            A = A.next, z === wa && (_ = !0);
             continue;
           } else
             D = {
               lane: 0,
-              revertLane: w.revertLane,
+              revertLane: A.revertLane,
               gesture: null,
-              action: w.action,
-              hasEagerState: w.hasEagerState,
-              eagerState: w.eagerState,
+              action: A.action,
+              hasEagerState: A.hasEagerState,
+              eagerState: A.eagerState,
               next: null
             }, h === null ? (r = h = D, u = i) : h = h.next = D, nt.lanes |= z, jl |= z;
-          D = w.action, Il && l(i, D), i = w.hasEagerState ? w.eagerState : l(i, D);
+          D = A.action, Il && l(i, D), i = A.hasEagerState ? A.eagerState : l(i, D);
         } else
           z = {
             lane: D,
-            revertLane: w.revertLane,
-            gesture: w.gesture,
-            action: w.action,
-            hasEagerState: w.hasEagerState,
-            eagerState: w.eagerState,
+            revertLane: A.revertLane,
+            gesture: A.gesture,
+            action: A.action,
+            hasEagerState: A.hasEagerState,
+            eagerState: A.eagerState,
             next: null
           }, h === null ? (r = h = z, u = i) : h = h.next = z, nt.lanes |= D, jl |= D;
-        w = w.next;
-      } while (w !== null && w !== e);
+        A = A.next;
+      } while (A !== null && A !== e);
       if (h === null ? u = i : h.next = r, !ye(i, t.memoizedState) && (Qt = !0, _ && (l = Aa, l !== null)))
         throw l;
       t.memoizedState = i, t.baseState = u, t.baseQueue = h, a.lastRenderedState = i;
@@ -3721,16 +3721,16 @@ Error generating stack: ` + a.message + `
       try {
         var r = l(n, a), h = T.S;
         h !== null && h(u, r), jr(t, e, r);
-      } catch (w) {
-        Ac(t, e, w);
+      } catch (A) {
+        Ac(t, e, A);
       } finally {
         i !== null && u.types !== null && (i.types = u.types), T.T = i;
       }
     } else
       try {
         i = l(n, a), jr(t, e, i);
-      } catch (w) {
-        Ac(t, e, w);
+      } catch (A) {
+        Ac(t, e, A);
       }
   }
   function jr(t, e, l) {
@@ -3971,8 +3971,8 @@ Error generating stack: ` + a.message + `
     var u = T.T, r = {};
     T.T = r, Cc(t, !1, e, l);
     try {
-      var h = n(), w = T.S;
-      if (w !== null && w(r, h), h !== null && typeof h == "object" && typeof h.then == "function") {
+      var h = n(), A = T.S;
+      if (A !== null && A(r, h), h !== null && typeof h == "object" && typeof h.then == "function") {
         var _ = Wm(
           h,
           a
@@ -4804,32 +4804,32 @@ Error generating stack: ` + a.message + `
       i = e.stateNode;
       var r = e.memoizedProps, h = Pl(l, r);
       i.props = h;
-      var w = i.context, _ = l.contextType;
+      var A = i.context, _ = l.contextType;
       u = ya, typeof _ == "object" && _ !== null && (u = te(_));
       var D = l.getDerivedStateFromProps;
-      _ = typeof D == "function" || typeof i.getSnapshotBeforeUpdate == "function", r = e.pendingProps !== r, _ || typeof i.UNSAFE_componentWillReceiveProps != "function" && typeof i.componentWillReceiveProps != "function" || (r || w !== u) && tf(
+      _ = typeof D == "function" || typeof i.getSnapshotBeforeUpdate == "function", r = e.pendingProps !== r, _ || typeof i.UNSAFE_componentWillReceiveProps != "function" && typeof i.componentWillReceiveProps != "function" || (r || A !== u) && tf(
         e,
         i,
         a,
         u
       ), vl = !1;
       var z = e.memoizedState;
-      i.state = z, gn(e, a, i, n), mn(), w = e.memoizedState, r || z !== w || vl ? (typeof D == "function" && (Mc(
+      i.state = z, gn(e, a, i, n), mn(), A = e.memoizedState, r || z !== A || vl ? (typeof D == "function" && (Mc(
         e,
         l,
         D,
         a
-      ), w = e.memoizedState), (h = vl || Pr(
+      ), A = e.memoizedState), (h = vl || Pr(
         e,
         l,
         h,
         a,
         z,
-        w,
+        A,
         u
-      )) ? (_ || typeof i.UNSAFE_componentWillMount != "function" && typeof i.componentWillMount != "function" || (typeof i.componentWillMount == "function" && i.componentWillMount(), typeof i.UNSAFE_componentWillMount == "function" && i.UNSAFE_componentWillMount()), typeof i.componentDidMount == "function" && (e.flags |= 4194308)) : (typeof i.componentDidMount == "function" && (e.flags |= 4194308), e.memoizedProps = a, e.memoizedState = w), i.props = a, i.state = w, i.context = u, a = h) : (typeof i.componentDidMount == "function" && (e.flags |= 4194308), a = !1);
+      )) ? (_ || typeof i.UNSAFE_componentWillMount != "function" && typeof i.componentWillMount != "function" || (typeof i.componentWillMount == "function" && i.componentWillMount(), typeof i.UNSAFE_componentWillMount == "function" && i.UNSAFE_componentWillMount()), typeof i.componentDidMount == "function" && (e.flags |= 4194308)) : (typeof i.componentDidMount == "function" && (e.flags |= 4194308), e.memoizedProps = a, e.memoizedState = A), i.props = a, i.state = A, i.context = u, a = h) : (typeof i.componentDidMount == "function" && (e.flags |= 4194308), a = !1);
     } else {
-      i = e.stateNode, oc(t, e), u = e.memoizedProps, _ = Pl(l, u), i.props = _, D = e.pendingProps, z = i.context, w = l.contextType, h = ya, typeof w == "object" && w !== null && (h = te(w)), r = l.getDerivedStateFromProps, (w = typeof r == "function" || typeof i.getSnapshotBeforeUpdate == "function") || typeof i.UNSAFE_componentWillReceiveProps != "function" && typeof i.componentWillReceiveProps != "function" || (u !== D || z !== h) && tf(
+      i = e.stateNode, oc(t, e), u = e.memoizedProps, _ = Pl(l, u), i.props = _, D = e.pendingProps, z = i.context, A = l.contextType, h = ya, typeof A == "object" && A !== null && (h = te(A)), r = l.getDerivedStateFromProps, (A = typeof r == "function" || typeof i.getSnapshotBeforeUpdate == "function") || typeof i.UNSAFE_componentWillReceiveProps != "function" && typeof i.componentWillReceiveProps != "function" || (u !== D || z !== h) && tf(
         e,
         i,
         a,
@@ -4849,7 +4849,7 @@ Error generating stack: ` + a.message + `
         z,
         j,
         h
-      ) || t !== null && t.dependencies !== null && fi(t.dependencies)) ? (w || typeof i.UNSAFE_componentWillUpdate != "function" && typeof i.componentWillUpdate != "function" || (typeof i.componentWillUpdate == "function" && i.componentWillUpdate(a, j, h), typeof i.UNSAFE_componentWillUpdate == "function" && i.UNSAFE_componentWillUpdate(
+      ) || t !== null && t.dependencies !== null && fi(t.dependencies)) ? (A || typeof i.UNSAFE_componentWillUpdate != "function" && typeof i.componentWillUpdate != "function" || (typeof i.componentWillUpdate == "function" && i.componentWillUpdate(a, j, h), typeof i.UNSAFE_componentWillUpdate == "function" && i.UNSAFE_componentWillUpdate(
         a,
         j,
         h
@@ -4942,8 +4942,8 @@ Error generating stack: ` + a.message + `
           l
         ), e.memoizedState = Hc, e = xn(null, a));
       else if (Sl(e), So(r)) {
-        if (u = r.nextSibling && r.nextSibling.dataset, u) var w = u.dgst;
-        u = w, a = Error(s(419)), a.stack = "", a.digest = u, on({ value: a, source: null, stack: null }), e = Gc(
+        if (u = r.nextSibling && r.nextSibling.dataset, u) var A = u.dgst;
+        u = A, a = Error(s(419)), a.stack = "", a.digest = u, on({ value: a, source: null, stack: null }), e = Gc(
           t,
           e,
           l
@@ -4965,11 +4965,11 @@ Error generating stack: ` + a.message + `
         ), e.flags |= 4096);
       return e;
     }
-    return n ? (wl(), r = a.fallback, n = e.mode, h = t.child, w = h.sibling, a = Ze(h, {
+    return n ? (wl(), r = a.fallback, n = e.mode, h = t.child, A = h.sibling, a = Ze(h, {
       mode: "hidden",
       children: a.children
-    }), a.subtreeFlags = h.subtreeFlags & 65011712, w !== null ? r = Ze(
-      w,
+    }), a.subtreeFlags = h.subtreeFlags & 65011712, A !== null ? r = Ze(
+      A,
       r
     ) : (r = Xl(
       r,
@@ -5843,9 +5843,9 @@ Error generating stack: ` + a.message + `
             var u = a.inst, r = u.destroy;
             if (r !== void 0) {
               u.destroy = void 0, n = e;
-              var h = l, w = r;
+              var h = l, A = r;
               try {
-                w();
+                A();
               } catch (_) {
                 jt(
                   n,
@@ -6014,13 +6014,13 @@ Error generating stack: ` + a.message + `
               l = null;
               break t;
             }
-            var u = 0, r = -1, h = -1, w = 0, _ = 0, D = t, z = null;
+            var u = 0, r = -1, h = -1, A = 0, _ = 0, D = t, z = null;
             e: for (; ; ) {
               for (var j; D !== l || n !== 0 && D.nodeType !== 3 || (r = u + n), D !== i || a !== 0 && D.nodeType !== 3 || (h = u + a), D.nodeType === 3 && (u += D.nodeValue.length), (j = D.firstChild) !== null; )
                 z = D, D = j;
               for (; ; ) {
                 if (D === t) break e;
-                if (z === l && ++w === n && (r = u), z === i && ++_ === a && (h = u), (j = D.nextSibling) !== null) break;
+                if (z === l && ++A === n && (r = u), z === i && ++_ === a && (h = u), (j = D.nextSibling) !== null) break;
                 D = z, z = D.parentNode;
               }
               D = j;
@@ -6528,8 +6528,8 @@ Error generating stack: ` + a.message + `
         break;
       case 22:
         n = t.memoizedState !== null;
-        var h = l !== null && l.memoizedState !== null, w = tl, _ = Zt;
-        if (tl = w || n, Zt = _ || h, se(e, t), Zt = _, tl = w, re(t), a & 8192)
+        var h = l !== null && l.memoizedState !== null, A = tl, _ = Zt;
+        if (tl = A || n, Zt = _ || h, se(e, t), Zt = _, tl = A, re(t), a & 8192)
           t: for (e = t.stateNode, e._visibility = n ? e._visibility & -2 : e._visibility | 1, n && (l === null || h || tl || Zt || ta(t)), l = null, e = t; ; ) {
             if (e.tag === 5 || e.tag === 26) {
               if (l === null) {
@@ -6614,10 +6614,10 @@ Error generating stack: ` + a.message + `
             break;
           case 3:
           case 4:
-            var h = l.stateNode.containerInfo, w = Qc(t);
+            var h = l.stateNode.containerInfo, A = Qc(t);
             Zc(
               t,
-              w,
+              A,
               h
             );
             break;
@@ -6701,8 +6701,8 @@ Error generating stack: ` + a.message + `
           ), a = i, n = a.stateNode, typeof n.componentDidMount == "function")
             try {
               n.componentDidMount();
-            } catch (w) {
-              jt(a, a.return, w);
+            } catch (A) {
+              jt(a, a.return, A);
             }
           if (a = i, n = a.updateQueue, n !== null) {
             var r = a.stateNode;
@@ -6711,8 +6711,8 @@ Error generating stack: ` + a.message + `
               if (h !== null)
                 for (n.shared.hiddenCallbacks = null, n = 0; n < h.length; n++)
                   fr(h[n], r);
-            } catch (w) {
-              jt(a, a.return, w);
+            } catch (A) {
+              jt(a, a.return, A);
             }
           }
           l && u & 64 && Af(i), An(i, i.return);
@@ -6896,7 +6896,7 @@ Error generating stack: ` + a.message + `
   }
   function _a(t, e, l, a, n) {
     for (n = n && ((e.subtreeFlags & 10256) !== 0 || !1), e = e.child; e !== null; ) {
-      var i = t, u = e, r = l, h = a, w = u.flags;
+      var i = t, u = e, r = l, h = a, A = u.flags;
       switch (u.tag) {
         case 0:
         case 11:
@@ -6928,7 +6928,7 @@ Error generating stack: ` + a.message + `
             r,
             h,
             n
-          )), n && w & 2048 && Jc(
+          )), n && A & 2048 && Jc(
             u.alternate,
             u
           );
@@ -6940,7 +6940,7 @@ Error generating stack: ` + a.message + `
             r,
             h,
             n
-          ), n && w & 2048 && Fc(u.alternate, u);
+          ), n && A & 2048 && Fc(u.alternate, u);
           break;
         default:
           _a(
@@ -7299,7 +7299,7 @@ Error generating stack: ` + a.message + `
     } while (!0);
     Ye(t);
   }
-  function Qf(t, e, l, a, n, i, u, r, h, w, _, D, z, j) {
+  function Qf(t, e, l, a, n, i, u, r, h, A, _, D, z, j) {
     if (t.timeoutHandle = -1, D = e.subtreeFlags, D & 8192 || (D & 16785408) === 16785408) {
       D = {
         stylesheets: null,
@@ -7338,7 +7338,7 @@ Error generating stack: ` + a.message + `
             z,
             j
           )
-        ), Nl(t, i, u, !w);
+        ), Nl(t, i, u, !A);
         return;
       }
     }
@@ -7458,14 +7458,14 @@ Error generating stack: ` + a.message + `
             case 9:
             case 6:
               be.current === null && (e = !0);
-              var w = zt;
-              if (zt = 0, Se = null, Ha(t, r, h, w), l && Oa) {
+              var A = zt;
+              if (zt = 0, Se = null, Ha(t, r, h, A), l && Oa) {
                 u = 0;
                 break t;
               }
               break;
             default:
-              w = zt, zt = 0, Se = null, Ha(t, r, h, w);
+              A = zt, zt = 0, Se = null, Ha(t, r, h, A);
           }
         }
         gg(), u = qt;
@@ -7528,8 +7528,8 @@ Error generating stack: ` + a.message + `
                     var h = r.sibling;
                     if (h !== null) rt = h;
                     else {
-                      var w = r.return;
-                      w !== null ? (rt = w, Yi(w)) : rt = null;
+                      var A = r.return;
+                      A !== null ? (rt = A, Yi(A)) : rt = null;
                     }
                     break e;
                   }
@@ -7709,9 +7709,9 @@ Error generating stack: ` + a.message + `
             r
           )) {
             if (h !== null && Gu(r)) {
-              var w = h.start, _ = h.end;
-              if (_ === void 0 && (_ = w), "selectionStart" in r)
-                r.selectionStart = w, r.selectionEnd = Math.min(
+              var A = h.start, _ = h.end;
+              if (_ === void 0 && (_ = A), "selectionStart" in r)
+                r.selectionStart = A, r.selectionEnd = Math.min(
                   _,
                   r.value.length
                 );
@@ -8117,10 +8117,10 @@ Error generating stack: ` + a.message + `
         var i = void 0;
         if (e)
           for (var u = a.length - 1; 0 <= u; u--) {
-            var r = a[u], h = r.instance, w = r.currentTarget;
+            var r = a[u], h = r.instance, A = r.currentTarget;
             if (r = r.listener, h !== i && n.isPropagationStopped())
               break t;
-            i = r, n.currentTarget = w;
+            i = r, n.currentTarget = A;
             try {
               i(n);
             } catch (_) {
@@ -8130,9 +8130,9 @@ Error generating stack: ` + a.message + `
           }
         else
           for (u = 0; u < a.length; u++) {
-            if (r = a[u], h = r.instance, w = r.currentTarget, r = r.listener, h !== i && n.isPropagationStopped())
+            if (r = a[u], h = r.instance, A = r.currentTarget, r = r.listener, h !== i && n.isPropagationStopped())
               break t;
-            i = r, n.currentTarget = w;
+            i = r, n.currentTarget = A;
             try {
               i(n);
             } catch (_) {
@@ -8219,7 +8219,7 @@ Error generating stack: ` + a.message + `
         a = a.return;
       }
     vs(function() {
-      var w = i, _ = Cu(l), D = [];
+      var A = i, _ = Cu(l), D = [];
       t: {
         var z = Zs.get(t);
         if (z !== void 0) {
@@ -8305,7 +8305,7 @@ Error generating stack: ` + a.message + `
           }
           var I = (e & 4) !== 0, Nt = !I && (t === "scroll" || t === "scrollend"), v = I ? z !== null ? z + "Capture" : null : z;
           I = [];
-          for (var g = w, x; g !== null; ) {
+          for (var g = A, x; g !== null; ) {
             var O = g;
             if (x = O.stateNode, O = O.tag, O !== 5 && O !== 26 && O !== 27 || x === null || v === null || (O = $a(g, v), O != null && I.push(
               Mn(g, O, x)
@@ -8325,14 +8325,14 @@ Error generating stack: ` + a.message + `
         t: {
           if (z = t === "mouseover" || t === "pointerover", j = t === "mouseout" || t === "pointerout", z && l !== Nu && (q = l.relatedTarget || l.fromElement) && (ia(q) || q[na]))
             break t;
-          if ((j || z) && (z = _.window === _ ? _ : (z = _.ownerDocument) ? z.defaultView || z.parentWindow : window, j ? (q = l.relatedTarget || l.toElement, j = w, q = q ? ia(q) : null, q !== null && (Nt = b(q), I = q.tag, q !== Nt || I !== 5 && I !== 27 && I !== 6) && (q = null)) : (j = null, q = w), j !== q)) {
+          if ((j || z) && (z = _.window === _ ? _ : (z = _.ownerDocument) ? z.defaultView || z.parentWindow : window, j ? (q = l.relatedTarget || l.toElement, j = A, q = q ? ia(q) : null, q !== null && (Nt = b(q), I = q.tag, q !== Nt || I !== 5 && I !== 27 && I !== 6) && (q = null)) : (j = null, q = A), j !== q)) {
             if (I = Ss, O = "onMouseLeave", v = "onMouseEnter", g = "mouse", (t === "pointerout" || t === "pointerover") && (I = As, O = "onPointerLeave", v = "onPointerEnter", g = "pointer"), Nt = j == null ? z : Wa(j), x = q == null ? z : Wa(q), z = new I(
               O,
               g + "leave",
               j,
               l,
               _
-            ), z.target = Nt, z.relatedTarget = x, O = null, ia(_) === w && (I = new I(
+            ), z.target = Nt, z.relatedTarget = x, O = null, ia(_) === A && (I = new I(
               v,
               g + "enter",
               q,
@@ -8375,7 +8375,7 @@ Error generating stack: ` + a.message + `
           }
         }
         t: {
-          if (z = w ? Wa(w) : window, j = z.nodeName && z.nodeName.toLowerCase(), j === "select" || j === "input" && z.type === "file")
+          if (z = A ? Wa(A) : window, j = z.nodeName && z.nodeName.toLowerCase(), j === "select" || j === "input" && z.type === "file")
             var St = Ms;
           else if (Cs(z))
             if (Os)
@@ -8385,8 +8385,8 @@ Error generating stack: ` + a.message + `
               var Z = Hm;
             }
           else
-            j = z.nodeName, !j || j.toLowerCase() !== "input" || z.type !== "checkbox" && z.type !== "radio" ? w && Eu(w.elementType) && (St = Ms) : St = Bm;
-          if (St && (St = St(t, w))) {
+            j = z.nodeName, !j || j.toLowerCase() !== "input" || z.type !== "checkbox" && z.type !== "radio" ? A && Eu(A.elementType) && (St = Ms) : St = Bm;
+          if (St && (St = St(t, A))) {
             _s(
               D,
               St,
@@ -8395,11 +8395,11 @@ Error generating stack: ` + a.message + `
             );
             break t;
           }
-          Z && Z(t, z, w), t === "focusout" && w && z.type === "number" && w.memoizedProps.value != null && Tu(z, "number", z.value);
+          Z && Z(t, z, A), t === "focusout" && A && z.type === "number" && A.memoizedProps.value != null && Tu(z, "number", z.value);
         }
-        switch (Z = w ? Wa(w) : window, t) {
+        switch (Z = A ? Wa(A) : window, t) {
           case "focusin":
-            (Cs(Z) || Z.contentEditable === "true") && (ma = Z, Yu = w, un = null);
+            (Cs(Z) || Z.contentEditable === "true") && (ma = Z, Yu = A, un = null);
             break;
           case "focusout":
             un = Yu = ma = null;
@@ -8436,13 +8436,13 @@ Error generating stack: ` + a.message + `
           }
         else
           ha ? Es(t, l) && (mt = "onCompositionEnd") : t === "keydown" && l.keyCode === 229 && (mt = "onCompositionStart");
-        mt && (zs && l.locale !== "ko" && (ha || mt !== "onCompositionStart" ? mt === "onCompositionEnd" && ha && (ut = bs()) : (hl = _, Ou = "value" in hl ? hl.value : hl.textContent, ha = !0)), Z = Zi(w, mt), 0 < Z.length && (mt = new ws(
+        mt && (zs && l.locale !== "ko" && (ha || mt !== "onCompositionStart" ? mt === "onCompositionEnd" && ha && (ut = bs()) : (hl = _, Ou = "value" in hl ? hl.value : hl.textContent, ha = !0)), Z = Zi(A, mt), 0 < Z.length && (mt = new ws(
           mt,
           t,
           null,
           l,
           _
-        ), D.push({ event: mt, listeners: Z }), ut ? mt.data = ut : (ut = Ns(l), ut !== null && (mt.data = ut)))), (ut = Mm ? Om(t, l) : Dm(t, l)) && (mt = Zi(w, "onBeforeInput"), 0 < mt.length && (Z = new ws(
+        ), D.push({ event: mt, listeners: Z }), ut ? mt.data = ut : (ut = Ns(l), ut !== null && (mt.data = ut)))), (ut = Mm ? Om(t, l) : Dm(t, l)) && (mt = Zi(A, "onBeforeInput"), 0 < mt.length && (Z = new ws(
           "onBeforeInput",
           "beforeinput",
           null,
@@ -8454,7 +8454,7 @@ Error generating stack: ` + a.message + `
         }), Z.data = ut)), zg(
           D,
           t,
-          w,
+          A,
           l,
           _
         );
@@ -8490,12 +8490,12 @@ Error generating stack: ` + a.message + `
   }
   function gd(t, e, l, a, n) {
     for (var i = e._reactName, u = []; l !== null && l !== a; ) {
-      var r = l, h = r.alternate, w = r.stateNode;
+      var r = l, h = r.alternate, A = r.stateNode;
       if (r = r.tag, h !== null && h === a) break;
-      r !== 5 && r !== 26 && r !== 27 || w === null || (h = w, n ? (w = $a(l, i), w != null && u.unshift(
-        Mn(l, w, h)
-      )) : n || (w = $a(l, i), w != null && u.push(
-        Mn(l, w, h)
+      r !== 5 && r !== 26 && r !== 27 || A === null || (h = A, n ? (A = $a(l, i), A != null && u.unshift(
+        Mn(l, A, h)
+      )) : n || (A = $a(l, i), A != null && u.push(
+        Mn(l, A, h)
       ))), l = l.return;
     }
     u.length !== 0 && t.push({ event: e, listeners: u });
@@ -8844,7 +8844,7 @@ Error generating stack: ` + a.message + `
         return;
       case "input":
         ft("invalid", t);
-        var r = i = u = n = null, h = null, w = null;
+        var r = i = u = n = null, h = null, A = null;
         for (a in l)
           if (l.hasOwnProperty(a)) {
             var _ = l[a];
@@ -8860,7 +8860,7 @@ Error generating stack: ` + a.message + `
                   h = _;
                   break;
                 case "defaultChecked":
-                  w = _;
+                  A = _;
                   break;
                 case "value":
                   i = _;
@@ -8882,7 +8882,7 @@ Error generating stack: ` + a.message + `
           i,
           r,
           h,
-          w,
+          A,
           u,
           n,
           !1
@@ -8965,14 +8965,14 @@ Error generating stack: ` + a.message + `
       case "track":
       case "wbr":
       case "menuitem":
-        for (w in l)
-          if (l.hasOwnProperty(w) && (a = l[w], a != null))
-            switch (w) {
+        for (A in l)
+          if (l.hasOwnProperty(A) && (a = l[A], a != null))
+            switch (A) {
               case "children":
               case "dangerouslySetInnerHTML":
                 throw Error(s(137, e));
               default:
-                Et(t, e, w, a, l, null);
+                Et(t, e, A, a, l, null);
             }
         return;
       default:
@@ -9004,7 +9004,7 @@ Error generating stack: ` + a.message + `
       case "li":
         break;
       case "input":
-        var n = null, i = null, u = null, r = null, h = null, w = null, _ = null;
+        var n = null, i = null, u = null, r = null, h = null, A = null, _ = null;
         for (j in l) {
           var D = l[j];
           if (l.hasOwnProperty(j) && D != null)
@@ -9030,7 +9030,7 @@ Error generating stack: ` + a.message + `
                 n = j;
                 break;
               case "checked":
-                w = j;
+                A = j;
                 break;
               case "defaultChecked":
                 _ = j;
@@ -9062,7 +9062,7 @@ Error generating stack: ` + a.message + `
           u,
           r,
           h,
-          w,
+          A,
           _,
           i,
           n
@@ -9178,9 +9178,9 @@ Error generating stack: ` + a.message + `
       case "menuitem":
         for (var I in l)
           z = l[I], l.hasOwnProperty(I) && z != null && !a.hasOwnProperty(I) && Et(t, e, I, null, a, z);
-        for (w in a)
-          if (z = a[w], j = l[w], a.hasOwnProperty(w) && z !== j && (z != null || j != null))
-            switch (w) {
+        for (A in a)
+          if (z = a[A], j = l[A], a.hasOwnProperty(A) && z !== j && (z != null || j != null))
+            switch (A) {
               case "children":
               case "dangerouslySetInnerHTML":
                 if (z != null)
@@ -9190,7 +9190,7 @@ Error generating stack: ` + a.message + `
                 Et(
                   t,
                   e,
-                  w,
+                  A,
                   z,
                   a,
                   j
@@ -9245,10 +9245,10 @@ Error generating stack: ` + a.message + `
         var n = l[a], i = n.transferSize, u = n.initiatorType, r = n.duration;
         if (i && r && vd(u)) {
           for (u = 0, r = n.responseEnd, a += 1; a < l.length; a++) {
-            var h = l[a], w = h.startTime;
-            if (w > r) break;
+            var h = l[a], A = h.startTime;
+            if (A > r) break;
             var _ = h.transferSize, D = h.initiatorType;
-            _ && vd(D) && (h = h.responseEnd, u += _ * (h < r ? 1 : (r - w) / (h - w)));
+            _ && vd(D) && (h = h.responseEnd, u += _ * (h < r ? 1 : (r - A) / (h - A)));
           }
           if (--a, e += 8 * (i + u) / (n.duration / 1e3), t++, 10 < t) break;
         }
@@ -9605,8 +9605,8 @@ Error generating stack: ` + a.message + `
             l
           ), (l = Ue.get(i)) && Ao(t, l);
           var h = u = a.createElement("link");
-          Wt(h), le(h, "link", t), h._p = new Promise(function(w, _) {
-            h.onload = w, h.onerror = _;
+          Wt(h), le(h, "link", t), h._p = new Promise(function(A, _) {
+            h.onload = A, h.onerror = _;
           }), h.addEventListener("load", function() {
             r.loading |= 1;
           }), h.addEventListener("error", function() {
@@ -9927,14 +9927,14 @@ Error generating stack: ` + a.message + `
   function t0(t, e, l, a, n, i, u, r, h) {
     this.tag = 1, this.containerInfo = t, this.pingCache = this.current = this.pendingChildren = null, this.timeoutHandle = -1, this.callbackNode = this.next = this.pendingContext = this.context = this.cancelPendingCommit = null, this.callbackPriority = 0, this.expirationTimes = bu(-1), this.entangledLanes = this.shellSuspendCounter = this.errorRecoveryDisabledLanes = this.expiredLanes = this.warmLanes = this.pingedLanes = this.suspendedLanes = this.pendingLanes = 0, this.entanglements = bu(0), this.hiddenUpdates = bu(null), this.identifierPrefix = a, this.onUncaughtError = n, this.onCaughtError = i, this.onRecoverableError = u, this.pooledCache = null, this.pooledCacheLanes = 0, this.formState = h, this.incompleteTransitions = /* @__PURE__ */ new Map();
   }
-  function kd(t, e, l, a, n, i, u, r, h, w, _, D) {
+  function kd(t, e, l, a, n, i, u, r, h, A, _, D) {
     return t = new t0(
       t,
       e,
       l,
       u,
       h,
-      w,
+      A,
       _,
       D,
       r
@@ -10527,7 +10527,7 @@ const uh = (c) => {
       const k = d;
       d = R ?? (typeof E != "object" || E === null) ? E : Object.assign({}, d, E), f.forEach((G) => G(d, k));
     }
-  }, p = () => d, M = { setState: s, getState: p, getInitialState: () => A, subscribe: (y) => (f.add(y), () => f.delete(y)) }, A = d = c(s, p, M);
+  }, p = () => d, M = { setState: s, getState: p, getInitialState: () => w, subscribe: (y) => (f.add(y), () => f.delete(y)) }, w = d = c(s, p, M);
   return M;
 }, b0 = ((c) => c ? uh(c) : uh), x0 = (c) => c;
 function S0(c, d = x0) {
@@ -10682,9 +10682,9 @@ async function Sh(c, d, f, s, p) {
       method: "POST",
       headers: S,
       body: JSON.stringify(b)
-    }), A = M.headers.get("content-type") || "", y = await M.text();
+    }), w = M.headers.get("content-type") || "", y = await M.text();
     let R = y;
-    if (A.includes("application/json") && y.trim().length)
+    if (w.includes("application/json") && y.trim().length)
       try {
         R = JSON.parse(y);
       } catch {
@@ -10850,7 +10850,7 @@ const ze = w0((c, d) => ({
   },
   // Message actions
   addMessage: (f, s, p = {}) => {
-    const { threads: b, activeThreadId: S, isOpen: M, currentView: A } = d();
+    const { threads: b, activeThreadId: S, isOpen: M, currentView: w } = d();
     if (!S) return;
     const y = qo(f, s, p.type || "text", p), R = (/* @__PURE__ */ new Date()).toISOString();
     if (c((E) => {
@@ -10936,7 +10936,7 @@ const ze = w0((c, d) => ({
         console.log(`[ChatStore] syncHistory: Backend status = ${E}, Local = ${k?.handoff_status}`), k && (E === "none_archived" && k.handoff_status !== "none_archived" && !k.ended ? (console.log("[ChatStore] Conversation ended remotely. Triggering feedback."), d().setHandoffStatus("none_archived")) : E !== "none_archived" && k.handoff_status !== E && (console.log(`[ChatStore] Polling: status changed ${k.handoff_status} -> ${E}`), d().setHandoffStatus(E)));
       } else
         console.warn(`[ChatStore] syncHistory: Status fetch failed with ${M.status}`);
-      const A = `${S}/api/v1/sessions/${s}/history`, y = await fetch(A);
+      const w = `${S}/api/v1/sessions/${s}/history`, y = await fetch(w);
       if (y.ok) {
         const R = await y.json(), { threads: E } = d(), k = E.find((Y) => Y.id === p);
         if (!k) return;
@@ -11043,14 +11043,14 @@ const ze = w0((c, d) => ({
     })();
     const M = localStorage.getItem("atliso_has_interacted") === "true";
     b.length === 0 && (b = [rh()], Le(b));
-    const A = b[0];
-    if (A && A.messages.length === 0) {
+    const w = b[0];
+    if (w && w.messages.length === 0) {
       const { customization: E } = d(), k = E?.welcomeMessage || "Hello! How can I help you today?", G = qo("bot", k);
       G.quickReplies = [
         { label: "Book a Meeting", value: "I want to book a meeting" },
         { label: "Talk to Sales", value: "I want to talk to sales" },
         { label: "Pricing", value: "Tell me about pricing" }
-      ], A.messages = [G], A.updatedAt = G.timestamp, Le(b);
+      ], w.messages = [G], w.updatedAt = G.timestamp, Le(b);
     }
     let y = z0();
     (!y || !b.some((E) => E.id === y)) && (y = b[0].id, Bo(y)), c({
@@ -11123,13 +11123,13 @@ const M0 = (c, d) => {
     getClassGroupId: (S) => {
       if (S.startsWith("[") && S.endsWith("]"))
         return R0(S);
-      const M = S.split(fu), A = M[0] === "" && M.length > 1 ? 1 : 0;
-      return zh(M, A, d);
+      const M = S.split(fu), w = M[0] === "" && M.length > 1 ? 1 : 0;
+      return zh(M, w, d);
     },
     getConflictingClassGroupIds: (S, M) => {
       if (M) {
-        const A = s[S], y = f[S];
-        return A ? y ? M0(y, A) : A : y || fh;
+        const w = s[S], y = f[S];
+        return w ? y ? M0(y, w) : w : y || fh;
       }
       return f[S] || fh;
     }
@@ -11145,8 +11145,8 @@ const M0 = (c, d) => {
   const S = f.validators;
   if (S === null)
     return;
-  const M = d === 0 ? c.join(fu) : c.slice(d).join(fu), A = S.length;
-  for (let y = 0; y < A; y++) {
+  const M = d === 0 ? c.join(fu) : c.slice(d).join(fu), w = S.length;
+  for (let y = 0; y < w; y++) {
     const R = S[y];
     if (R.validator(M))
       return R.classGroupId;
@@ -11195,8 +11195,8 @@ const M0 = (c, d) => {
 }, Y0 = (c, d, f, s) => {
   const p = Object.entries(c), b = p.length;
   for (let S = 0; S < b; S++) {
-    const [M, A] = p[S];
-    Qo(A, jh(d, M), f, s);
+    const [M, w] = p[S];
+    Qo(w, jh(d, M), f, s);
   }
 }, jh = (c, d) => {
   let f = c;
@@ -11244,13 +11244,13 @@ const M0 = (c, d) => {
   } = c;
   let s = (p) => {
     const b = [];
-    let S = 0, M = 0, A = 0, y;
+    let S = 0, M = 0, w = 0, y;
     const R = p.length;
     for (let Y = 0; Y < R; Y++) {
       const K = p[Y];
       if (S === 0 && M === 0) {
         if (K === dh) {
-          b.push(p.slice(A, Y)), A = Y + 1;
+          b.push(p.slice(w, Y)), w = Y + 1;
           continue;
         }
         if (K === "/") {
@@ -11260,7 +11260,7 @@ const M0 = (c, d) => {
       }
       K === "[" ? S++ : K === "]" ? S-- : K === "(" ? M++ : K === ")" && M--;
     }
-    const E = b.length === 0 ? p : p.slice(A);
+    const E = b.length === 0 ? p : p.slice(w);
     let k = E, G = !1;
     E.endsWith(Vo) ? (k = E.slice(0, -1), G = !0) : (
       /**
@@ -11269,7 +11269,7 @@ const M0 = (c, d) => {
        */
       E.startsWith(Vo) && (k = E.slice(1), G = !0)
     );
-    const et = y && y > A ? y - A : void 0;
+    const et = y && y > w ? y - w : void 0;
     return hh(b, G, k, et);
   };
   if (d) {
@@ -11292,8 +11292,8 @@ const M0 = (c, d) => {
     const s = [];
     let p = [];
     for (let b = 0; b < f.length; b++) {
-      const S = f[b], M = S[0] === "[", A = d.has(S);
-      M || A ? (p.length > 0 && (p.sort(), s.push(...p), p = []), s.push(S)) : p.push(S);
+      const S = f[b], M = S[0] === "[", w = d.has(S);
+      M || w ? (p.length > 0 && (p.sort(), s.push(...p), p = []), s.push(S)) : p.push(S);
     }
     return p.length > 0 && (p.sort(), s.push(...p)), s;
   };
@@ -11309,7 +11309,7 @@ const M0 = (c, d) => {
     getConflictingClassGroupIds: p,
     sortModifiers: b
   } = d, S = [], M = c.trim().split(J0);
-  let A = "";
+  let w = "";
   for (let y = M.length - 1; y >= 0; y -= 1) {
     const R = M[y], {
       isExternal: E,
@@ -11319,17 +11319,17 @@ const M0 = (c, d) => {
       maybePostfixModifierPosition: Y
     } = f(R);
     if (E) {
-      A = R + (A.length > 0 ? " " + A : A);
+      w = R + (w.length > 0 ? " " + w : w);
       continue;
     }
     let K = !!Y, X = s(K ? et.substring(0, Y) : et);
     if (!X) {
       if (!K) {
-        A = R + (A.length > 0 ? " " + A : A);
+        w = R + (w.length > 0 ? " " + w : w);
         continue;
       }
       if (X = s(et), !X) {
-        A = R + (A.length > 0 ? " " + A : A);
+        w = R + (w.length > 0 ? " " + w : w);
         continue;
       }
       K = !1;
@@ -11343,9 +11343,9 @@ const M0 = (c, d) => {
       const tt = gt[st];
       S.push(ct + tt);
     }
-    A = R + (A.length > 0 ? " " + A : A);
+    w = R + (w.length > 0 ? " " + w : w);
   }
-  return A;
+  return w;
 }, W0 = (...c) => {
   let d = 0, f, s, p = "";
   for (; d < c.length; )
@@ -11360,17 +11360,17 @@ const M0 = (c, d) => {
   return f;
 }, $0 = (c, ...d) => {
   let f, s, p, b;
-  const S = (A) => {
+  const S = (w) => {
     const y = d.reduce((R, E) => E(R), c());
-    return f = K0(y), s = f.cache.get, p = f.cache.set, b = M, M(A);
-  }, M = (A) => {
-    const y = s(A);
+    return f = K0(y), s = f.cache.get, p = f.cache.set, b = M, M(w);
+  }, M = (w) => {
+    const y = s(w);
     if (y)
       return y;
-    const R = F0(A, f);
-    return p(A, R), R;
+    const R = F0(w, f);
+    return p(w, R), R;
   };
-  return b = S, (...A) => b(W0(...A));
+  return b = S, (...w) => b(W0(...w));
 }, I0 = [], Jt = (c) => {
   const d = (f) => f[c] || I0;
   return d.isThemeGetter = !0, d;
@@ -11386,7 +11386,7 @@ const M0 = (c, d) => {
   const s = Nh.exec(c);
   return s ? s[1] ? d(s[1]) : f : !1;
 }, _h = (c) => c === "position" || c === "percentage", Mh = (c) => c === "image" || c === "url", Oh = (c) => c === "length" || c === "size" || c === "bg-size", Dh = (c) => c === "length", gp = (c) => c === "number", pp = (c) => c === "family-name", Uh = (c) => c === "shadow", yp = () => {
-  const c = Jt("color"), d = Jt("font"), f = Jt("text"), s = Jt("font-weight"), p = Jt("tracking"), b = Jt("leading"), S = Jt("breakpoint"), M = Jt("container"), A = Jt("spacing"), y = Jt("radius"), R = Jt("shadow"), E = Jt("inset-shadow"), k = Jt("text-shadow"), G = Jt("drop-shadow"), et = Jt("blur"), Y = Jt("perspective"), K = Jt("aspect"), X = Jt("ease"), dt = Jt("animate"), ct = () => ["auto", "avoid", "all", "avoid-page", "page", "left", "right", "column"], it = () => [
+  const c = Jt("color"), d = Jt("font"), f = Jt("text"), s = Jt("font-weight"), p = Jt("tracking"), b = Jt("leading"), S = Jt("breakpoint"), M = Jt("container"), w = Jt("spacing"), y = Jt("radius"), R = Jt("shadow"), E = Jt("inset-shadow"), k = Jt("text-shadow"), G = Jt("drop-shadow"), et = Jt("blur"), Y = Jt("perspective"), K = Jt("aspect"), X = Jt("ease"), dt = Jt("animate"), ct = () => ["auto", "avoid", "all", "avoid-page", "page", "left", "right", "column"], it = () => [
     "center",
     "top",
     "bottom",
@@ -11404,7 +11404,7 @@ const M0 = (c, d) => {
     "bottom-left",
     // Deprecated since Tailwind CSS v4.1.0, see https://github.com/tailwindlabs/tailwindcss/pull/17378
     "left-bottom"
-  ], gt = () => [...it(), V, L], st = () => ["auto", "hidden", "clip", "visible", "scroll"], tt = () => ["auto", "contain", "none"], Q = () => [V, L, A], _t = () => [La, "full", "auto", ...Q()], he = () => [Hl, "none", "subgrid", V, L], Ft = () => ["auto", {
+  ], gt = () => [...it(), V, L], st = () => ["auto", "hidden", "clip", "visible", "scroll"], tt = () => ["auto", "contain", "none"], Q = () => [V, L, w], _t = () => [La, "full", "auto", ...Q()], he = () => [Hl, "none", "subgrid", V, L], Ft = () => ["auto", {
     span: ["full", Hl, V, L]
   }, Hl, V, L], Ut = () => [Hl, "auto", V, L], vt = () => ["auto", "min", "max", "fr", V, L], bt = () => ["start", "end", "center", "between", "around", "evenly", "stretch", "baseline", "center-safe", "end-safe"], kt = () => ["start", "end", "center", "stretch", "center-safe", "end-safe"], T = () => ["auto", ...Q()], B = () => [La, "auto", "full", "dvw", "dvh", "lvw", "lvh", "svw", "svh", "min", "max", "fit", ...Q()], N = () => [c, V, L], P = () => [...it(), gh, mh, {
     position: [V, L]
@@ -13871,8 +13871,8 @@ function bp() {
       default:
         return "bottom-5 right-5";
     }
-  }, M = s?.primaryColor || "#000000", A = s?.launcherText, y = A && !c;
-  return /* @__PURE__ */ o.jsxs(
+  }, M = s?.primaryColor || "#000000", w = s?.launcherText, y = w && !c;
+  return console.log("[ChatButton] launcherText:", w, "hasText:", y, "isOpen:", c), /* @__PURE__ */ o.jsxs(
     "button",
     {
       onClick: d,
@@ -13906,7 +13906,7 @@ function bp() {
               style: { width: "32px", height: "32px" }
             }
           ),
-          y && /* @__PURE__ */ o.jsx("span", { className: "text-white font-semibold text-sm whitespace-nowrap", children: A })
+          y && /* @__PURE__ */ o.jsx("span", { className: "text-white font-semibold text-sm whitespace-nowrap", children: w })
         ] }),
         !c && p > 0 && /* @__PURE__ */ o.jsx("span", { className: "absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 border-2 border-white shadow-md", children: p > 99 ? "99+" : p })
       ]
@@ -13934,8 +13934,8 @@ function Sp() {
   }
 }
 function Zo(c) {
-  const d = new Date(c), s = (/* @__PURE__ */ new Date()).getTime() - d.getTime(), p = Math.floor(s / 1e3), b = Math.floor(p / 60), S = Math.floor(b / 60), M = Math.floor(S / 24), A = Math.floor(M / 30), y = Math.floor(M / 365);
-  return p < 60 ? "Just now" : b < 60 ? `${b} minute${b === 1 ? "" : "s"} ago` : S < 24 ? `${S} hour${S === 1 ? "" : "s"} ago` : M < 30 ? M === 1 ? "Yesterday" : `${M} days ago` : A < 12 ? `${A}mo` : `${y}y`;
+  const d = new Date(c), s = (/* @__PURE__ */ new Date()).getTime() - d.getTime(), p = Math.floor(s / 1e3), b = Math.floor(p / 60), S = Math.floor(b / 60), M = Math.floor(S / 24), w = Math.floor(M / 30), y = Math.floor(M / 365);
+  return p < 60 ? "Just now" : b < 60 ? `${b} minute${b === 1 ? "" : "s"} ago` : S < 24 ? `${S} hour${S === 1 ? "" : "s"} ago` : M < 30 ? M === 1 ? "Yesterday" : `${M} days ago` : w < 12 ? `${w}mo` : `${y}y`;
 }
 const wp = (c) => c.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase(), Ap = (c) => c.replace(
   /^([A-Z])|[\s-_]+(\w)/g,
@@ -13969,10 +13969,10 @@ const Tp = xt.forwardRef(
     children: b,
     iconNode: S,
     ...M
-  }, A) => xt.createElement(
+  }, w) => xt.createElement(
     "svg",
     {
-      ref: A,
+      ref: w,
       ...jp,
       width: d,
       height: d,
@@ -14164,7 +14164,7 @@ const fy = [
   { label: "Understanding platform limits and usage", url: "#" }
 ];
 function dy() {
-  const { customization: c, setCustomization: d, setCurrentView: f, setIsOpen: s, getActiveThread: p, startNewConversation: b } = ze(), [S, M] = xt.useState(!1), [A, y] = xt.useState({
+  const { customization: c, setCustomization: d, setCurrentView: f, setIsOpen: s, getActiveThread: p, startNewConversation: b } = ze(), [S, M] = xt.useState(!1), [w, y] = xt.useState({
     logo: "",
     supportLogo: "",
     avatars: "",
@@ -14194,17 +14194,17 @@ function dy() {
   }, _t = () => {
     window.prompt("Developer access") === "ATLISODEV" && Q();
   }, he = () => {
-    const vt = A.avatars.split(/\n|,/g).map((bt) => bt.trim()).filter(Boolean);
+    const vt = w.avatars.split(/\n|,/g).map((bt) => bt.trim()).filter(Boolean);
     d({
       ...c || {},
-      logo: A.logo.trim() ? A.logo.trim() : null,
-      supportLogo: A.supportLogo.trim() ? A.supportLogo.trim() : null,
+      logo: w.logo.trim() ? w.logo.trim() : null,
+      supportLogo: w.supportLogo.trim() ? w.supportLogo.trim() : null,
       avatars: vt,
       gradient: {
-        color1: A.color1,
-        color2: A.color2,
-        color3: A.color3,
-        color4: A.color4
+        color1: w.color1,
+        color2: w.color2,
+        color3: w.color3,
+        color4: w.color4
       }
     }), M(!1);
   }, Ft = () => {
@@ -14724,7 +14724,7 @@ function dy() {
                       /* @__PURE__ */ o.jsx(
                         "input",
                         {
-                          value: A.logo,
+                          value: w.logo,
                           onChange: (vt) => y((bt) => ({ ...bt, logo: vt.target.value })),
                           placeholder: "https://...",
                           style: {
@@ -14744,7 +14744,7 @@ function dy() {
                       /* @__PURE__ */ o.jsx(
                         "input",
                         {
-                          value: A.supportLogo,
+                          value: w.supportLogo,
                           onChange: (vt) => y((bt) => ({ ...bt, supportLogo: vt.target.value })),
                           placeholder: "https://...",
                           style: {
@@ -14764,7 +14764,7 @@ function dy() {
                       /* @__PURE__ */ o.jsx(
                         "textarea",
                         {
-                          value: A.avatars,
+                          value: w.avatars,
                           onChange: (vt) => y((bt) => ({ ...bt, avatars: vt.target.value })),
                           placeholder: "https://...",
                           rows: 3,
@@ -14787,7 +14787,7 @@ function dy() {
                         "input",
                         {
                           type: "color",
-                          value: A[vt],
+                          value: w[vt],
                           onChange: (bt) => y((kt) => ({ ...kt, [vt]: bt.target.value })),
                           style: {
                             width: "100%",
@@ -14918,7 +14918,7 @@ const vh = [
   }
 ];
 function hy() {
-  const { setCurrentView: c, setIsOpen: d, customization: f } = ze(), [s, p] = xt.useState(""), [b, S] = xt.useState(null), M = f?.supportLogo, A = xt.useMemo(() => {
+  const { setCurrentView: c, setIsOpen: d, customization: f } = ze(), [s, p] = xt.useState(""), [b, S] = xt.useState(null), M = f?.supportLogo, w = xt.useMemo(() => {
     if (!s.trim()) return vh;
     const E = s.toLowerCase();
     return vh.filter(
@@ -14975,10 +14975,10 @@ function hy() {
       )
     ] }) }),
     /* @__PURE__ */ o.jsx("div", { style: { paddingLeft: "14px", paddingRight: "14px" }, className: "px-5 py-4 bg-gray-50/50", children: /* @__PURE__ */ o.jsxs("h3", { className: "font-semibold text-gray-900 text-[15px]", children: [
-      A.length,
+      w.length,
       " collections"
     ] }) }),
-    /* @__PURE__ */ o.jsx("div", { style: { cursor: "pointer", paddingLeft: "14px", paddingRight: "14px", paddingTop: "6px" }, className: "flex-1 bg-white overflow-y-auto atliso-scrollbar", children: /* @__PURE__ */ o.jsx("div", { className: "divide-y divide-gray-100", children: A.map((E) => /* @__PURE__ */ o.jsxs(
+    /* @__PURE__ */ o.jsx("div", { style: { cursor: "pointer", paddingLeft: "14px", paddingRight: "14px", paddingTop: "6px" }, className: "flex-1 bg-white overflow-y-auto atliso-scrollbar", children: /* @__PURE__ */ o.jsx("div", { className: "divide-y divide-gray-100", children: w.map((E) => /* @__PURE__ */ o.jsxs(
       "button",
       {
         onClick: () => y(E),
@@ -14999,10 +14999,10 @@ function hy() {
 function my({ isOpen: c, onClose: d, onDownloadTranscript: f, onExpandView: s, isExpanded: p }) {
   const b = xt.useRef(null);
   return xt.useEffect(() => {
-    const S = (A) => {
-      b.current && !b.current.contains(A.target) && d();
-    }, M = (A) => {
-      A.key === "Escape" && d();
+    const S = (w) => {
+      b.current && !b.current.contains(w.target) && d();
+    }, M = (w) => {
+      w.key === "Escape" && d();
     };
     return c && (document.addEventListener("mousedown", S), document.addEventListener("keydown", M)), () => {
       document.removeEventListener("mousedown", S), document.removeEventListener("keydown", M);
@@ -15084,7 +15084,7 @@ function gy({ onDownloadTranscript: c, onExpandView: d, isExpanded: f }) {
 function py() {
   const { customization: c, setCurrentView: d, setIsOpen: f, toggleExpanded: s, getActiveThread: p, isExpanded: b } = ze(), S = c?.supportLogo, M = () => {
     d("messages");
-  }, A = () => {
+  }, w = () => {
     const R = p();
     if (!R || R.messages.length === 0) return;
     const E = R.messages.map((Y) => `[${new Date(Y.timestamp).toLocaleString()}] ${Y.role.toUpperCase()}: ${Y.content}`).join(`
@@ -15116,7 +15116,7 @@ function py() {
       /* @__PURE__ */ o.jsx(
         gy,
         {
-          onDownloadTranscript: A,
+          onDownloadTranscript: w,
           onExpandView: y,
           isExpanded: b
         }
@@ -15316,10 +15316,10 @@ function by({ isOpen: c, onClose: d, onSelect: f }) {
   ] });
 }
 function xy() {
-  const { sendMessage: c, isTyping: d, getActiveThread: f } = ze(), b = (f()?.handoff_status || "none") === "waiting", S = d, M = "Message...", [A, y] = xt.useState(""), [R, E] = xt.useState(!1), [k, G] = xt.useState(""), [et, Y] = xt.useState(0), [K, X] = xt.useState([]), [dt, ct] = xt.useState(!1), it = xt.useRef(null), gt = xt.useRef(null), st = xt.useRef(null), tt = xt.useRef(null);
+  const { sendMessage: c, isTyping: d, getActiveThread: f } = ze(), b = (f()?.handoff_status || "none") === "waiting", S = d, M = "Message...", [w, y] = xt.useState(""), [R, E] = xt.useState(!1), [k, G] = xt.useState(""), [et, Y] = xt.useState(0), [K, X] = xt.useState([]), [dt, ct] = xt.useState(!1), it = xt.useRef(null), gt = xt.useRef(null), st = xt.useRef(null), tt = xt.useRef(null);
   xt.useEffect(() => {
     it.current && (it.current.style.height = "auto", it.current.style.height = Math.min(it.current.scrollHeight, 200) + "px");
-  }, [A]);
+  }, [w]);
   const Q = () => {
     const N = tt.current;
     N?.stop && N.stop(), tt.current = null, st.current && st.current.state !== "inactive" && (st.current.stop(), st.current = null), E(!1), Y(0);
@@ -15332,7 +15332,7 @@ function xy() {
       /* @__PURE__ */ o.jsx("p", { className: "text-sm font-medium text-gray-500", children: "Waiting for Human Agent..." })
     ] }) });
   const _t = () => {
-    const N = A.trim();
+    const N = w.trim();
     if (!(!N || S)) {
       if (K.length > 0) {
         const P = K[0], $ = {
@@ -15532,7 +15532,7 @@ function xy() {
             {
               style: { paddingLeft: "16px", paddingRight: "16px", paddingTop: "10px" },
               ref: it,
-              value: A,
+              value: w,
               onChange: (N) => y(N.target.value),
               onKeyDown: B,
               placeholder: M,
@@ -15597,10 +15597,10 @@ function xy() {
               {
                 style: { padding: "8px 8px", justifyItems: "center", borderRadius: "50px" },
                 onClick: _t,
-                disabled: !A.trim() || S,
+                disabled: !w.trim() || S,
                 className: Lt(
                   "p-1.5 rounded-lg transition-all cursor-pointer focus:outline-none",
-                  A.trim() && !S ? "bg-black text-white shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95" : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  w.trim() && !S ? "bg-black text-white shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95" : "bg-gray-100 text-gray-400 cursor-not-allowed"
                 ),
                 children: /* @__PURE__ */ o.jsx(Np, { className: "w-5 h-5" })
               }
@@ -15654,7 +15654,7 @@ function wy({ rating: c, onRatingChange: d, disabled: f = !1 }) {
   ] });
 }
 function Ay() {
-  const { getActiveThread: c, isTyping: d, submitFeedback: f } = ze(), s = xt.useRef(null), p = c(), b = xt.useMemo(() => p?.messages || [], [p?.messages]), S = p?.handoff_status || "none", M = p?.ended || S === "ended", A = p?.feedbackRating;
+  const { getActiveThread: c, isTyping: d, submitFeedback: f } = ze(), s = xt.useRef(null), p = c(), b = xt.useMemo(() => p?.messages || [], [p?.messages]), S = p?.handoff_status || "none", M = p?.ended || S === "ended", w = p?.feedbackRating;
   xt.useEffect(() => {
     s.current?.scrollIntoView({ behavior: "smooth" });
   }, [b, d]);
@@ -15682,9 +15682,9 @@ function Ay() {
       /* @__PURE__ */ o.jsx("div", { className: "mt-4", children: /* @__PURE__ */ o.jsx(
         wy,
         {
-          rating: A,
+          rating: w,
           onRatingChange: y,
-          disabled: !!A
+          disabled: !!w
         }
       ) }),
       /* @__PURE__ */ o.jsx(
@@ -15710,8 +15710,8 @@ function Ay() {
   ] });
 }
 function zy() {
-  const { customization: c, threads: d, setActiveThread: f, startNewConversation: s, setIsOpen: p } = ze(), b = c?.supportLogo, S = c?.logo, M = b || S, A = d.find((R) => !R.ended), y = () => {
-    A ? f(A.id) : s();
+  const { customization: c, threads: d, setActiveThread: f, startNewConversation: s, setIsOpen: p } = ze(), b = c?.supportLogo, S = c?.logo, M = b || S, w = d.find((R) => !R.ended), y = () => {
+    w ? f(w.id) : s();
   };
   return /* @__PURE__ */ o.jsxs("div", { className: "flex flex-col h-full bg-white", children: [
     /* @__PURE__ */ o.jsxs("div", { className: "min-h-[60px] px-4 py-4 bg-white border-b border-gray-100 flex items-center justify-center relative shrink-0", children: [
@@ -16051,7 +16051,7 @@ function My({ options: c }) {
     setCustomization: b,
     setWebhookUrl: S,
     showToast: M,
-    toastMessage: A,
+    toastMessage: w,
     setShowToast: y,
     setIsOpen: R
   } = ze(), E = xt.useCallback(async () => {
@@ -16110,7 +16110,7 @@ function My({ options: c }) {
         !k && !d && M && /* @__PURE__ */ o.jsx(
           _y,
           {
-            message: A,
+            message: w,
             isVisible: M,
             onDismiss: () => y(!1),
             onOpen: () => R(!0)

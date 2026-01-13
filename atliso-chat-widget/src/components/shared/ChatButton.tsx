@@ -26,6 +26,9 @@ export function ChatButton() {
   const launcherText = customization?.launcherText;
   const hasText = launcherText && !isOpen;
 
+  // Debug logging
+  console.log('[ChatButton] launcherText:', launcherText, 'hasText:', hasText, 'isOpen:', isOpen);
+
   return (
     <button
       onClick={toggleOpen}
