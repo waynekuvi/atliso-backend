@@ -26,7 +26,6 @@ async def verify_secret(x_atliso_secret: str = Header(None)):
 class BotConfigUpdate(BaseModel):
     bot_name: Optional[str] = None
     welcome_message: Optional[str] = None
-    homepage_heading: Optional[str] = None
     business_context: Optional[str] = None
     personality: Optional[str] = None
     tone_keywords: Optional[str] = None
@@ -101,7 +100,6 @@ async def get_config(org_id: str):
         default_settings = {
             "bot_name": "Support Bot",
             "welcome_message": "Hello! How can I help you?",
-            "homepage_heading": "How can we help?",
             "model": "gpt-4o-mini",
             "temperature": 0.7,
             "max_tokens": 500,
@@ -126,15 +124,15 @@ async def get_config(org_id: str):
     response = {
         **config,
         "botName": config.get('bot_name'),
+        "homepageHeading": config.get('homepage_heading') or "How can we help you?",
         "welcomeMessage": config.get('welcome_message'),
-        "homepageHeading": config.get('homepage_heading') or "How can we help?",
         "primaryColor": widget_settings.get('primaryColor') or widget_settings.get('primary_color') or '#000000',
         "logoUrl": widget_settings.get('logoUrl') or widget_settings.get('logo'),
         "supportLogoUrl": widget_settings.get('supportLogoUrl') or widget_settings.get('supportLogo'),
         "avatarUrl": (widget_settings.get('avatars') or widget_settings.get('avatarUrl'))[0] if (widget_settings.get('avatars') or widget_settings.get('avatarUrl')) else None,
         "launcherText": widget_settings.get('launcherText') or widget_settings.get('launcher_text') or 'Chat with us',
         "position": widget_settings.get('position') or 'bottom-right',
-        "tagline": widget_settings.get('tagline') or 'We reply in minutes',
+        "tagline": widget_settings.get('tagline') or widget_settings.get('tagline'),
         "showBranding": widget_settings.get('showBranding') if 'showBranding' in widget_settings else True,
     }
     
