@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { useChatStore } from '@/stores/chatStore';
 import { cn } from '@/utils/cn';
-import { Paperclip, Mic, ArrowUp, X } from 'lucide-react';
+import { Paperclip, Mic, ArrowUp, X, Zap } from 'lucide-react';
+import { CommandMenu } from './CommandMenu';
 
 export function InputArea() {
   const { sendMessage, isTyping, getActiveThread } = useChatStore();
@@ -22,6 +23,7 @@ export function InputArea() {
   // @ts-ignore - audioLevel is used for audio level monitoring in recording animation
   const [audioLevel, setAudioLevel] = useState(0);
   const [uploadedImages, setUploadedImages] = useState<Array<{ id: string, url: string, name: string }>>([]);
+  const [isCommandMenuOpen, setIsCommandMenuOpen] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -103,6 +105,10 @@ export function InputArea() {
 
   const handleFileAttachment = () => {
     fileInputRef.current?.click();
+  };
+
+  const handleCommandSelect = (action: string) => {
+    sendMessage(action);
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -273,7 +279,13 @@ export function InputArea() {
   };
 
   return (
-    <div style={{ paddingLeft: '14px', paddingRight: '14px', paddingBottom: '20px' }} className="p-5 bg-transparent shrink-0">
+    <div style={{ paddingLeft: '14px', paddingRight: '14px', paddingBottom: '20px' }} className="p-5 bg-transparent shrink-0 relative">
+      <CommandMenu
+        isOpen={isCommandMenuOpen}
+        onClose={() => setIsCommandMenuOpen(false)}
+        onSelect={handleCommandSelect}
+      />
+
       {/* Elegant keyframe animations */}
       <style>{`
         @keyframes rainbow-glow {
@@ -392,6 +404,15 @@ export function InputArea() {
         {/* Bottom Toolbar */}
         <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between">
           <div style={{ marginBottom: '-20px' }} className="flex items-center gap-5">
+            <button
+              onClick={() => setIsCommandMenuOpen(!isCommandMenuOpen)}
+              className={cn(
+                "p-2 rounded-lg transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-gray-300",
+                isCommandMenuOpen ? "text-indigo-600 bg-indigo-50" : "text-gray-400 hover:text-gray-600 hover:bg-gray-100 active:bg-gray-200"
+              )}
+            >
+              <Zap className="w-5 h-5 fill-current" />
+            </button>
             <button
               onClick={handleFileAttachment}
               className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-gray-300"
