@@ -25,6 +25,7 @@ async def verify_secret(x_atliso_secret: str = Header(None)):
 
 class BotConfigUpdate(BaseModel):
     bot_name: Optional[str] = None
+    homepage_heading: Optional[str] = None
     welcome_message: Optional[str] = None
     business_context: Optional[str] = None
     personality: Optional[str] = None
