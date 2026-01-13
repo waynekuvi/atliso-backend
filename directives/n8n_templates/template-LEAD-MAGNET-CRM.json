@@ -1,0 +1,185 @@
+{
+    "nodes": [
+        {
+            "parameters": {
+                "content": "## 📈 VIRAL LEAD MAGNET & CRM SYNC\nStandard chatbots just answer questions. THIS workflow hunts for contact info, scores leads by quality, and syncs them to your CRM for maximum ROI.",
+                "height": 200,
+                "width": 500,
+                "color": 6
+            },
+            "id": "lead-header",
+            "name": "Header",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                0,
+                0
+            ]
+        },
+        {
+            "parameters": {
+                "content": "### 1. LEAD DETECTION\nTriggered after every AI response to scan for email, name, or phone number.",
+                "height": 180,
+                "width": 250,
+                "color": 4
+            },
+            "id": "lead-note-1",
+            "name": "Note 1",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                0,
+                250
+            ]
+        },
+        {
+            "parameters": {
+                "inputSource": "passthrough"
+            },
+            "id": "lead-trigger",
+            "name": "On Every Message",
+            "type": "n8n-nodes-base.executeWorkflowTrigger",
+            "typeVersion": 1.1,
+            "position": [
+                0,
+                450
+            ]
+        },
+        {
+            "parameters": {
+                "promptType": "define",
+                "text": "={{ $json.chat_transcript }}",
+                "options": {
+                    "systemMessage": "Extract lead data: {name, email, phone, business_type} in JSON format. If missing, return null."
+                }
+            },
+            "id": "lead-ai-extract",
+            "name": "AI Data Extractor",
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "typeVersion": 1.6,
+            "position": [
+                250,
+                450
+            ]
+        },
+        {
+            "parameters": {
+                "content": "### 2. INTELLIGENT SCORING\nQualified leads get tagged as 'HIGH INTENT' and trigger an immediate notification.",
+                "height": 180,
+                "width": 280,
+                "color": 2
+            },
+            "id": "lead-note-2",
+            "name": "Note 2",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                550,
+                250
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "const data = JSON.parse($input.all()[0].json.output);\nlet score = 0;\nif (data.email) score += 40;\nif (data.phone) score += 30;\nif (data.business_type) score += 30;\n\nreturn [{\n  json: { ...data, lead_score: score, status: score > 65 ? 'Qualified' : 'New' }\n}];"
+            },
+            "id": "lead-scoring",
+            "name": "Logic: Scoring Engine",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                550,
+                450
+            ]
+        },
+        {
+            "parameters": {
+                "content": "### 3. AUTOMATED SYNC\nSends the hot lead to Slack, Discord, or Instantly.ai for immediate follow-up.",
+                "height": 180,
+                "width": 300,
+                "color": 7
+            },
+            "id": "lead-note-3",
+            "name": "Note 3",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                900,
+                250
+            ]
+        },
+        {
+            "parameters": {
+                "url": "https://hooks.slack.com/services/YOUR_WEBHOOK",
+                "method": "POST",
+                "sendBody": true,
+                "bodyParameters": {
+                    "parameters": [
+                        {
+                            "name": "text",
+                            "value": "🔥 NEW HOT LEAD: {{ $json.name }} ({{ $json.email }}) - Score: {{ $json.lead_score }}"
+                        }
+                    ]
+                }
+            },
+            "id": "lead-slack",
+            "name": "Slack Notification",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                900,
+                450
+            ]
+        },
+        {
+            "parameters": {
+                "content": "💰 **ROI TIP:**\nFocus your energy ONLY on leads with a score > 70. Let the AI pre-qualify everyone else.",
+                "height": 120,
+                "width": 300,
+                "color": 5
+            },
+            "id": "lead-pro-tip",
+            "name": "ROI Tip",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                900,
+                650
+            ]
+        }
+    ],
+    "connections": {
+        "On Every Message": {
+            "main": [
+                [
+                    {
+                        "node": "AI Data Extractor",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "AI Data Extractor": {
+            "main": [
+                [
+                    {
+                        "node": "Logic: Scoring Engine",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Logic: Scoring Engine": {
+            "main": [
+                [
+                    {
+                        "node": "Slack Notification",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

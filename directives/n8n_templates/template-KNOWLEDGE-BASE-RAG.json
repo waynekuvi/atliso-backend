@@ -1,0 +1,215 @@
+{
+    "nodes": [
+        {
+            "parameters": {
+                "content": "## 🧠 PREMIUM KNOWLEDGE BASE PIPELINE\nThis 'Document Brain' workflow turns raw PDF/Docs/URLs into searchable Vector Embeddings. Essential for High-Earning Creator Hubs to own their IP.",
+                "height": 200,
+                "width": 500,
+                "color": 3
+            },
+            "id": "kb-header",
+            "name": "Header",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                0,
+                0
+            ]
+        },
+        {
+            "parameters": {
+                "content": "### 1. FILE INPUT\nCan be a Webhook, Google Drive, or URL link.\nExtracts text using PDF parser.",
+                "height": 180,
+                "width": 250,
+                "color": 4
+            },
+            "id": "kb-note-1",
+            "name": "Note 1",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                0,
+                250
+            ]
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "ingest-knowledge",
+                "responseMode": "responseNode",
+                "options": {}
+            },
+            "id": "kb-webhook",
+            "name": "Doc Ingestion",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 2.1,
+            "position": [
+                0,
+                450
+            ],
+            "webhookId": "ingest-knowledge"
+        },
+        {
+            "parameters": {
+                "operation": "pdf",
+                "options": {}
+            },
+            "id": "kb-extract",
+            "name": "Text Extraction",
+            "type": "n8n-nodes-base.extractFromFile",
+            "typeVersion": 1,
+            "position": [
+                250,
+                450
+            ]
+        },
+        {
+            "parameters": {
+                "content": "### 2. SMART CHUNKING\nSplits giant documents into small, overlap chunks so the AI doesn't lose context.",
+                "height": 180,
+                "width": 280,
+                "color": 6
+            },
+            "id": "kb-note-2",
+            "name": "Note 2",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                550,
+                250
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Advanced Recursive Chunking Logic\nconst text = $input.all()[0].json.text || '';\nconst CHUNK_SIZE = 1000;\nconst OVERLAP = 200;\n\nconst chunks = [];\nfor (let i = 0; i < text.length; i += (CHUNK_SIZE - OVERLAP)) {\n  chunks.push({ json: { content: text.substring(i, i + CHUNK_SIZE) } });\n}\nreturn chunks;"
+            },
+            "id": "kb-chunker",
+            "name": "AI Logic: Chunking",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                550,
+                450
+            ]
+        },
+        {
+            "parameters": {
+                "content": "### 3. VECTOR STORAGE\nGenerates embeddings and saves to Postgres (pgvector) or Pinecone for RAG retrieval.",
+                "height": 180,
+                "width": 300,
+                "color": 7
+            },
+            "id": "kb-note-3",
+            "name": "Note 3",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                900,
+                250
+            ]
+        },
+        {
+            "parameters": {
+                "authentication": "predefinedCredentialType",
+                "nodeCredentialType": "openAiApi",
+                "url": "https://api.openai.com/v1/embeddings",
+                "method": "POST",
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={ \"input\": \"{{ $json.content }}\", \"model\": \"text-embedding-ada-002\" }",
+                "options": {}
+            },
+            "id": "kb-embed",
+            "name": "Generate Embeddings",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                900,
+                450
+            ]
+        },
+        {
+            "parameters": {
+                "schema": "public",
+                "table": "knowledge_vectors",
+                "columns": {
+                    "mappingMode": "defineBelow",
+                    "value": {
+                        "content": "={{ $('AI Logic: Chunking').item.json.content }}",
+                        "embedding": "={{ '[' + $json.data[0].embedding.join(',') + ']' }}"
+                    }
+                }
+            },
+            "id": "kb-db",
+            "name": "Save to Vector Store",
+            "type": "n8n-nodes-base.postgres",
+            "typeVersion": 2.6,
+            "position": [
+                1150,
+                450
+            ]
+        },
+        {
+            "parameters": {
+                "content": "🚀 **SOCIAL PROOF TIP:**\nUse this to 'Brain Dump' your entire YouTube transcript library into your chatbot for 24/7 coaching.",
+                "height": 120,
+                "width": 300,
+                "color": 5
+            },
+            "id": "kb-pro-tip",
+            "name": "Social Proof",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                1150,
+                250
+            ]
+        }
+    ],
+    "connections": {
+        "Doc Ingestion": {
+            "main": [
+                [
+                    {
+                        "node": "Text Extraction",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Text Extraction": {
+            "main": [
+                [
+                    {
+                        "node": "AI Logic: Chunking",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "AI Logic: Chunking": {
+            "main": [
+                [
+                    {
+                        "node": "Generate Embeddings",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Generate Embeddings": {
+            "main": [
+                [
+                    {
+                        "node": "Save to Vector Store",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

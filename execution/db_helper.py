@@ -27,56 +27,48 @@ class DatabaseHelper:
         if DatabaseHelper._pool is None:
             import ssl
             import asyncio
-            import socket
-            import re
             
             db_url = self.database_url
             print(f"💎 Initializing Global Database Pool...")
-            
-            # Extract hostname from URL and resolve to IPv4
-            # Render's free tier has IPv6 issues with Supabase
-            match = re.search(r'@([^:/]+)', db_url)
-            if match:
-                hostname = match.group(1)
-                try:
-                    # Force IPv4 resolution
-                    ipv4_addr = socket.gethostbyname(hostname)
-                    db_url = db_url.replace(hostname, ipv4_addr)
-                    print(f"📡 Resolved {hostname} to IPv4: {ipv4_addr}")
-                except socket.gaierror as e:
-                    print(f"⚠️ Could not resolve hostname: {e}")
             
             # Create proper SSL context for Supabase
             ssl_context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
             ssl_context.check_hostname = False
             ssl_context.verify_mode = ssl.CERT_NONE
             
-            # Retry logic for cloud environments
+            # Retry logic
             max_retries = 3
-            retry_delay = 3
+            retry_delay = 2
             last_error = None
             
             for attempt in range(max_retries):
                 try:
+                    # Close existing pool if it exists but is broken
+                    if DatabaseHelper._pool:
+                        try:
+                            await DatabaseHelper._pool.close()
+                        except:
+                            pass
+                            
                     DatabaseHelper._pool = await asyncpg.create_pool(
                         db_url,
                         min_size=1,
-                        max_size=10,
+                        max_size=5, # Reduced max size for safety
                         ssl=ssl_context,
-                        command_timeout=60,
-                        timeout=60,
-                        statement_cache_size=0  # Required for Supabase pgbouncer
+                        command_timeout=30,
+                        timeout=30
                     )
                     print("✅ Database pool connected successfully!")
+                    last_error = None
                     break
                 except Exception as e:
                     last_error = e
-                    print(f"⚠️ DB attempt {attempt + 1}/3 failed: {type(e).__name__}: {e}")
+                    print(f"⚠️ DB attempt {attempt + 1}/{max_retries} failed: {e}")
                     if attempt < max_retries - 1:
                         await asyncio.sleep(retry_delay)
             
-            if DatabaseHelper._pool is None and last_error:
-                print(f"❌ All database connection attempts failed: {last_error}")
+            if last_error:
+                print(f"❌ All persistent database connection attempts failed.")
                 raise last_error
                 
         return DatabaseHelper._pool

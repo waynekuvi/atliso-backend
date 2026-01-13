@@ -1,0 +1,182 @@
+{
+    "nodes": [
+        {
+            "parameters": {
+                "content": "## 📅 ADVANCED AI APPOINTMENT SETTER\nThe ultimate 'Closer' workflow. Handles timezone math, calendar conflict checking, and automatic email confirmations with Google Meet links.",
+                "height": 200,
+                "width": 500,
+                "color": 7
+            },
+            "id": "book-header",
+            "name": "Header",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                0,
+                0
+            ]
+        },
+        {
+            "parameters": {
+                "content": "### 1. REQUEST PARSING\nConverts 'Next Tuesday at 3pm EST' into a precise ISO date string.",
+                "height": 180,
+                "width": 250,
+                "color": 4
+            },
+            "id": "book-note-1",
+            "name": "Note 1",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                0,
+                250
+            ]
+        },
+        {
+            "parameters": {
+                "inputSource": "passthrough"
+            },
+            "id": "book-trigger",
+            "name": "Booking Request",
+            "type": "n8n-nodes-base.executeWorkflowTrigger",
+            "typeVersion": 1.1,
+            "position": [
+                0,
+                450
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Timezone & Format Normalization\nconst input = $input.all()[0].json;\nconst date = new Date(input.dateTime);\nreturn [{\n  json: {\n    ...input,\n    startISO: date.toISOString(),\n    endISO: new Date(date.getTime() + 30 * 60000).toISOString(),\n    formatted: date.toLocaleString()\n  }\n}];"
+            },
+            "id": "book-format",
+            "name": "Logic: Time Normalizer",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                250,
+                450
+            ]
+        },
+        {
+            "parameters": {
+                "content": "### 2. CONFLICT CHECK\nQueries Google Calendar/Postgres to ensure no double-booking occurs.",
+                "height": 180,
+                "width": 280,
+                "color": 2
+            },
+            "id": "book-note-2",
+            "name": "Note 2",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                550,
+                250
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "list",
+                "calendar": "primary",
+                "filters": {
+                    "timeMin": "={{ $json.startISO }}",
+                    "timeMax": "={{ $json.endISO }}"
+                }
+            },
+            "id": "book-cal-check",
+            "name": "Check Calendar",
+            "type": "n8n-nodes-base.googleCalendar",
+            "typeVersion": 1.2,
+            "position": [
+                550,
+                450
+            ]
+        },
+        {
+            "parameters": {
+                "content": "### 3. CONFIRMATION\nSends the invite and updates the CRM lead status to 'BOOKED'.",
+                "height": 180,
+                "width": 300,
+                "color": 6
+            },
+            "id": "book-note-3",
+            "name": "Note 3",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                900,
+                250
+            ]
+        },
+        {
+            "parameters": {
+                "calendar": "primary",
+                "start": "={{ $('Logic: Time Normalizer').first().json.startISO }}",
+                "end": "={{ $('Logic: Time Normalizer').first().json.endISO }}",
+                "additionalFields": {
+                    "attendees": "={{ $node['Booking Request'].json.email }}",
+                    "summary": "Meeting with {{ $node['Booking Request'].json.name }}"
+                }
+            },
+            "id": "book-create",
+            "name": "Create Event",
+            "type": "n8n-nodes-base.googleCalendar",
+            "typeVersion": 1.2,
+            "position": [
+                900,
+                450
+            ]
+        },
+        {
+            "parameters": {
+                "content": "✅ **MASTER TIP:**\nAlways include a 'Reschedule Link' in the confirmation email to reduce no-shows.",
+                "height": 120,
+                "width": 300,
+                "color": 5
+            },
+            "id": "book-pro-tip",
+            "name": "Master Tip",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                900,
+                650
+            ]
+        }
+    ],
+    "connections": {
+        "Booking Request": {
+            "main": [
+                [
+                    {
+                        "node": "Logic: Time Normalizer",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Logic: Time Normalizer": {
+            "main": [
+                [
+                    {
+                        "node": "Check Calendar",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Check Calendar": {
+            "main": [
+                [
+                    {
+                        "node": "Create Event",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

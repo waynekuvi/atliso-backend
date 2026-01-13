@@ -1,0 +1,203 @@
+{
+    "nodes": [
+        {
+            "parameters": {
+                "content": "## 🌐 MULTI-CHANNEL CREATOR ORCHESTRATOR\nDon't let DM's get lost. This workflow routes Telegram, WhatsApp, and Web Chat into a single Postgres database and alerts you on Discord.",
+                "height": 200,
+                "width": 500,
+                "color": 2
+            },
+            "id": "hub-header",
+            "name": "Header",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                0,
+                0
+            ]
+        },
+        {
+            "parameters": {
+                "content": "### 1. CHANNEL AGGREGATION\nConnect your Telegram Bot, WhatsApp Business, and Website Chat widgets here.",
+                "height": 180,
+                "width": 300,
+                "color": 4
+            },
+            "id": "hub-note-1",
+            "name": "Note 1",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                0,
+                250
+            ]
+        },
+        {
+            "parameters": {
+                "updates": [
+                    "message"
+                ]
+            },
+            "id": "hub-telegram",
+            "name": "Telegram Receiver",
+            "type": "n8n-nodes-base.telegramTrigger",
+            "typeVersion": 1.1,
+            "position": [
+                -150,
+                450
+            ]
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "whatsapp-webhook"
+            },
+            "id": "hub-whatsapp",
+            "name": "WhatsApp Receiver",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 2.1,
+            "position": [
+                150,
+                450
+            ]
+        },
+        {
+            "parameters": {
+                "content": "### 2. UNIFIED SCHEMA\nMaps various channel data into a single 'Lead' format for your dashboard.",
+                "height": 180,
+                "width": 280,
+                "color": 6
+            },
+            "id": "hub-note-2",
+            "name": "Note 2",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                500,
+                250
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "const item = $input.all()[0].json;\nconst channel = item.message ? 'Telegram' : 'WhatsApp';\nreturn [{\n  json: {\n    sender: item.message?.from?.username || item.body?.sender_name || 'Prospect',\n    content: item.message?.text || item.body?.message_text || '',\n    channel: channel,\n    received_at: new Date().toISOString()\n  }\n}];"
+            },
+            "id": "hub-mapper",
+            "name": "Logic: Data Mapper",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                500,
+                450
+            ]
+        },
+        {
+            "parameters": {
+                "content": "### 3. PERSISTENCE & ALERT\nSaves to your master database and pings your private 'Closing Group' on Discord.",
+                "height": 180,
+                "width": 300,
+                "color": 7
+            },
+            "id": "hub-note-3",
+            "name": "Note 3",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                850,
+                250
+            ]
+        },
+        {
+            "parameters": {
+                "table": "unified_messages",
+                "columns": {
+                    "mappingMode": "autoMapInputData"
+                }
+            },
+            "id": "hub-db",
+            "name": "Save to Master DB",
+            "type": "n8n-nodes-base.postgres",
+            "typeVersion": 2.6,
+            "position": [
+                850,
+                450
+            ]
+        },
+        {
+            "parameters": {
+                "url": "https://discord.com/api/webhooks/...",
+                "method": "POST",
+                "jsonBody": "={ \"content\": \"📱 New message on **{{ $json.channel }}** from **{{ $json.sender }}**: {{ $json.content }}\" }"
+            },
+            "id": "hub-discord",
+            "name": "Discord Alert",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                1100,
+                450
+            ]
+        },
+        {
+            "parameters": {
+                "content": "👑 **EXPERT TIP:**\nUse this to scale yourself. Hire a virtual assistant (VA) to monitor the 'Master DB' instead of checking 5 different apps.",
+                "height": 120,
+                "width": 300,
+                "color": 5
+            },
+            "id": "hub-pro-tip",
+            "name": "Expert Tip",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                1100,
+                250
+            ]
+        }
+    ],
+    "connections": {
+        "Telegram Receiver": {
+            "main": [
+                [
+                    {
+                        "node": "Logic: Data Mapper",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "WhatsApp Receiver": {
+            "main": [
+                [
+                    {
+                        "node": "Logic: Data Mapper",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Logic: Data Mapper": {
+            "main": [
+                [
+                    {
+                        "node": "Save to Master DB",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Save to Master DB": {
+            "main": [
+                [
+                    {
+                        "node": "Discord Alert",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}
