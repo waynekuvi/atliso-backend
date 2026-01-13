@@ -101,6 +101,45 @@ class DatabaseHelper:
                 org_id
             )
             return dict(row) if row else None
+            
+    async def upsert_bot_config(self, org_id: str, config_data: Dict) -> bool:
+        """
+        Upsert bot configuration
+        """
+        async with self.connection() as conn:
+            # We construct the query dynamically or just hardcode specific fields
+            await conn.execute(
+                """
+                INSERT INTO bot_configs (
+                    org_id, bot_name, welcome_message, business_context,
+                    personality, tone_keywords, model, temperature, max_tokens,
+                    widget_settings
+                )
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                ON CONFLICT (org_id) DO UPDATE SET
+                    bot_name = COALESCE(EXCLUDED.bot_name, bot_configs.bot_name),
+                    welcome_message = COALESCE(EXCLUDED.welcome_message, bot_configs.welcome_message),
+                    business_context = COALESCE(EXCLUDED.business_context, bot_configs.business_context),
+                    personality = COALESCE(EXCLUDED.personality, bot_configs.personality),
+                    tone_keywords = COALESCE(EXCLUDED.tone_keywords, bot_configs.tone_keywords),
+                    model = COALESCE(EXCLUDED.model, bot_configs.model),
+                    temperature = COALESCE(EXCLUDED.temperature, bot_configs.temperature),
+                    max_tokens = COALESCE(EXCLUDED.max_tokens, bot_configs.max_tokens),
+                    widget_settings = COALESCE(EXCLUDED.widget_settings, bot_configs.widget_settings),
+                    updated_at = NOW()
+                """,
+                org_id,
+                config_data.get('bot_name'),
+                config_data.get('welcome_message'),
+                config_data.get('business_context'),
+                config_data.get('personality'),
+                config_data.get('tone_keywords'),
+                config_data.get('model'),
+                config_data.get('temperature'),
+                config_data.get('max_tokens'),
+                json.dumps(config_data.get('widget_settings', {}))
+            )
+            return True
     
     async def get_bot_template(self, template_id: str) -> Optional[Dict]:
         """

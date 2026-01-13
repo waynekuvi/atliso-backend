@@ -30,6 +30,7 @@ from contextlib import asynccontextmanager
 from .workflow_router import WorkflowRouter
 from .webhook_service import WebhookService
 from .lead_recovery_service import LeadRecoveryService
+from .configuration_router import router as config_router
 
 # Global services
 services = {}
@@ -137,6 +138,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include routers
+app.include_router(config_router)
 
 # Initialize router
 router = WorkflowRouter()

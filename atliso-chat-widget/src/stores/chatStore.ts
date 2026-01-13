@@ -73,7 +73,7 @@ interface ChatState {
   getTotalUnreadCount: () => number;
 
   // Initialize
-  initialize: () => void;
+  initialize: (options?: any) => void;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -484,9 +484,45 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   // Initialize
-  initialize: () => {
+  initialize: (options?: any) => {
+    const {
+      organizationId = 'default',
+      // Allow overriding webhookUrl here if needed
+    } = options || {};
+
     const sessionId = getSessionId();
     let threads = loadThreads();
+
+    // Fetch remote configuration
+    const fetchConfig = async () => {
+      try {
+        const { webhookUrl } = get();
+        if (!webhookUrl) return;
+
+        const apiBase = webhookUrl.split('/webhook/')[0];
+        const res = await fetch(`${apiBase}/api/v1/config/${organizationId}`);
+        if (res.ok) {
+          const data = await res.json();
+          const newCustomization: Customization = {
+            botName: data.bot_name,
+            welcomeMessage: data.welcome_message,
+            primaryColor: data.widget_settings?.primaryColor,
+            logo: data.widget_settings?.logo,
+            supportLogo: data.widget_settings?.supportLogo,
+            avatars: data.widget_settings?.avatars,
+            webhookUrl: get().webhookUrl
+          };
+
+          set((state) => ({
+            customization: { ...state.customization, ...newCustomization }
+          }));
+        }
+      } catch (e) {
+        console.error('Failed to fetch config:', e);
+      }
+    };
+
+    fetchConfig();
 
     // Check if user has interacted before
     const hasInteracted = localStorage.getItem('atliso_has_interacted') === 'true';
