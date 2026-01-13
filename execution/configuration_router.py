@@ -10,7 +10,7 @@ import PyPDF2
 
 from .db_helper import DatabaseHelper
 
-router = APIRouter()
+router = APIRouter(prefix="/api/v1/config")
 db = DatabaseHelper()
 client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -18,7 +18,6 @@ client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 async def verify_secret(x_atliso_secret: str = Header(None)):
     shared_secret = os.getenv("SHARED_SECRET")
     if not shared_secret:
-        # If no secret is set in env, allow for now but log warning
         print("⚠️ WARNING: SHARED_SECRET not set in environment. Authentication is wide open.")
         return
     if x_atliso_secret != shared_secret:
@@ -35,64 +34,17 @@ class BotConfigUpdate(BaseModel):
     max_tokens: Optional[int] = None
     widget_settings: Optional[Dict[str, Any]] = None
 
-@router.get("/api/v1/config/{org_id}")
-async def get_config(org_id: str):
-    """Get bot configuration for an organization. Auto-creates default if missing."""
-    config = await db.get_bot_config(org_id)
-    
-    if not config:
-        # Auto-create default record
-        default_settings = {
-            "bot_name": "Support Bot",
-            "welcome_message": "Hello! How can I help you?",
-            "model": "gpt-4o-mini",
-            "temperature": 0.7,
-            "max_tokens": 500,
-            "widget_settings": {
-                "logo": "",
-                "supportLogo": "",
-                "primaryColor": "#000000",
-                "avatars": []
-            }
-        }
-        await db.upsert_bot_config(org_id, default_settings)
-        # Fetch it back to return full structure
-        config = await db.get_bot_config(org_id)
-    
-    if config and isinstance(config.get('widget_settings'), str):
-        config['widget_settings'] = json.loads(config['widget_settings'])
-        
-    return config
-
-@router.patch("/api/v1/config/{org_id}")
-async def update_config(org_id: str, config: BotConfigUpdate, _ = Depends(verify_secret)):
-    """Update bot configuration"""
-    config_data = config.model_dump(exclude_unset=True)
-    widget_data = config_data.pop('widget_settings', None)
-    
-    if config_data:
-        success = await db.upsert_bot_config(org_id, config_data)
-        if not success:
-            raise HTTPException(status_code=500, detail="Failed to update configuration")
-            
-    if widget_data:
-        success = await db.update_bot_config_widget_settings(org_id, widget_data)
-        if not success:
-            raise HTTPException(status_code=500, detail="Failed to update widget settings")
-        
-    return {"status": "success", "org_id": org_id}
-
 # ==========================================
-# Knowledge Base Endpoints
+# Knowledge Base Endpoints (Specific routes first)
 # ==========================================
 
-@router.get("/api/v1/config/{org_id}/knowledge")
+@router.get("/{org_id}/knowledge")
 async def list_knowledge(org_id: str):
-    """List knowledge base documents for an organization"""
+    """List knowledge base documents for an organization. Returns [] if none."""
     docs = await db.get_knowledge_docs(org_id)
-    return docs
+    return docs or []
 
-@router.delete("/api/v1/config/{org_id}/knowledge/{doc_id}")
+@router.delete("/{org_id}/knowledge/{doc_id}")
 async def delete_knowledge(org_id: str, doc_id: str, _ = Depends(verify_secret)):
     """Delete a knowledge base document"""
     success = await db.delete_knowledge_doc(doc_id, org_id)
@@ -100,7 +52,7 @@ async def delete_knowledge(org_id: str, doc_id: str, _ = Depends(verify_secret))
         raise HTTPException(status_code=500, detail="Failed to delete document")
     return {"status": "success", "doc_id": doc_id}
 
-@router.post("/api/v1/config/{org_id}/knowledge")
+@router.post("/{org_id}/knowledge")
 async def upload_knowledge(
     org_id: str, 
     background_tasks: BackgroundTasks,
@@ -132,6 +84,61 @@ async def upload_knowledge(
         "doc_id": doc_id,
         "filename": file.filename
     }
+
+# ==========================================
+# Bot Configuration Endpoints
+# ==========================================
+
+@router.get("/{org_id}")
+async def get_config(org_id: str):
+    """Get bot configuration for an organization. Auto-creates default if missing."""
+    config = await db.get_bot_config(org_id)
+    
+    if not config:
+        # Auto-create default record
+        default_settings = {
+            "bot_name": "Support Bot",
+            "welcome_message": "Hello! How can I help you?",
+            "model": "gpt-4o-mini",
+            "temperature": 0.7,
+            "max_tokens": 500,
+            "widget_settings": {
+                "logo": "",
+                "supportLogo": "",
+                "primaryColor": "#000000",
+                "avatars": []
+            }
+        }
+        await db.upsert_bot_config(org_id, default_settings)
+        # Fetch it back to return full structure
+        config = await db.get_bot_config(org_id)
+    
+    if config and isinstance(config.get('widget_settings'), str):
+        config['widget_settings'] = json.loads(config['widget_settings'])
+        
+    return config
+
+@router.patch("/{org_id}")
+async def update_config(org_id: str, config: BotConfigUpdate, _ = Depends(verify_secret)):
+    """Update bot configuration"""
+    config_data = config.model_dump(exclude_unset=True)
+    widget_data = config_data.pop('widget_settings', None)
+    
+    if config_data:
+        success = await db.upsert_bot_config(org_id, config_data)
+        if not success:
+            raise HTTPException(status_code=500, detail="Failed to update configuration")
+            
+    if widget_data:
+        success = await db.update_bot_config_widget_settings(org_id, widget_data)
+        if not success:
+            raise HTTPException(status_code=500, detail="Failed to update widget settings")
+        
+    return {"status": "success", "org_id": org_id}
+
+# ==========================================
+# Background Processing
+# ==========================================
 
 async def process_pdf_background(doc_id: str, org_id: str, filename: str, content: bytes):
     """Background task to parse, chunk, embed, and store PDF content"""
