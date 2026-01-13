@@ -504,6 +504,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
       const { customization } = get();
       const welcomeText = customization?.welcomeMessage || 'Hello! How can I help you today?';
       const welcomeMessage = createMessage('bot', welcomeText);
+
+      // Default Quick Replies
+      welcomeMessage.quickReplies = [
+        { label: '📅 Book a Meeting', value: 'I want to book a meeting' },
+        { label: '👤 Talk to Sales', value: 'I want to talk to sales' },
+        { label: '❓ Pricing', value: 'Tell me about pricing' }
+      ];
+
       initialThread.messages = [welcomeMessage];
       initialThread.updatedAt = welcomeMessage.timestamp;
       saveThreads(threads);
